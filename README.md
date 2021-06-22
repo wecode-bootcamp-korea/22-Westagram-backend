@@ -67,4 +67,3 @@
     ```
 - 보다 자세한 규칙은 노션에서 확인해주세요
     - [파이썬 코딩 컨벤션](https://www.notion.so/wecode/wecode-Python-Coding-Convention-0bd47a6018634454b9ee1e27984cb83a)
-구
