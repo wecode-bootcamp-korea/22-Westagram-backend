@@ -9,8 +9,8 @@ class User(models.Model):
     password = models.CharField(
         max_length=30,
     )
-    nick_name = models.CharField(max_length=100, unique=True, null=True)
-    phone_number = models.CharField(max_length=20, unique=True, null=True)
+    nick_name = models.CharField(max_length=100, unique=True)
+    phone_number = models.CharField(max_length=20, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
