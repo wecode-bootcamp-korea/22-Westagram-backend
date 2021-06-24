@@ -6,6 +6,7 @@ class User(models.Model):
     name         = models.CharField(max_length=100, blank=True)
     nickname     = models.CharField(max_length=100, unique=True, blank=True)
     password     = models.CharField(max_length=200)
+    created_at   = models.DateField(auto_now_add=True)
 
     class Meta:
         db_table = 'users'
