@@ -4,8 +4,9 @@ from django.db import models
 # 사용자 로그인 필수 정보
 class USER(models.Model):
     password = models.CharField(max_length=1024)
-    email = models.CharField(max_length=100)
-    mobile_number = models.CharField(max_length=100)
+    email = models.CharField(max_length=45)
+    mobile_number = models.CharField(max_length=45)
+    nick_name = models.CharField(max_length=45)
     class Meta:
         db_table = 'users'
 
