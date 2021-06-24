@@ -1,4 +1,3 @@
-<<<<<<< HEAD:students/myungjun/project_westagram/settings.py
 """
 Django settings for project_westagram project.
 
@@ -12,7 +11,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
 from pathlib import Path
-import my_settings
+from my_settings import SECRET_KEY, DATABASES
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-7@qsku=4#9&7m+e!%&7mwz#2+*am2g2t^=ed1t(@l91f!7efb7"
+SECRET_KEY = SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -76,12 +75,7 @@ WSGI_APPLICATION = "project_westagram.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = DATABASES
 
 
 # Password validation
@@ -126,6 +120,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# REMOVE_APPEND_SLASH_WARNING
+APPEND_SLASH = False
 
 ##CORS
 CORS_ORIGIN_ALLOW_ALL = True
