@@ -13,9 +13,6 @@ class SignUpView(View):
         if not (data['email'] and data['password'] and data['phone_number'] and data['nickname']):
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
-        # if (not data['email']) or (not data['password']):
-        #     return JsonResponse({'message': 'KEY_ERROR'}, status=400)
-
         if not email_validate(data['email']):
             return JsonResponse({'message': 'INVALID_EMAIL'}, status=400)
 
