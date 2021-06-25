@@ -8,9 +8,4 @@ class Account(models.Model):
     email           = models.EmailField(max_length=200)
 
     class Meta:
-        db_table = "acounts"
-
-
-
-
-
+        db_table = "accounts"
