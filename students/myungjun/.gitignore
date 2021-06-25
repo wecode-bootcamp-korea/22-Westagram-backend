@@ -1,5 +1,6 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,python,django,vscode,vim
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,python,django,vscode,vim
+
+# Created by https://www.toptal.com/developers/gitignore/api/python,django,visualstudiocode,macos
+# Edit at https://www.toptal.com/developers/gitignore?templates=python,django,visualstudiocode,macos
 
 ### Django ###
 *.log
@@ -31,8 +32,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -105,6 +104,9 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
+# poetry
+#poetry.lock
+
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
@@ -116,8 +118,9 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
-.venv
+# .env
+.env/
+.venv/
 env/
 venv/
 ENV/
@@ -146,8 +149,15 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+# operating system-related files
+# file properties cache/storage on macOS
+*.DS_Store
+# thumbnail cache on Windows
+Thumbs.db
+
 # profiling data
 .prof
+
 
 ### macOS ###
 # General
@@ -217,6 +227,8 @@ Temporary Items
 #   having no cross-platform support, pipenv may install dependencies that don't work, or not
 #   install all needed dependencies.
 
+# poetry
+
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 
 # Celery stuff
@@ -224,6 +236,7 @@ Temporary Items
 # SageMath parsed files
 
 # Environments
+# .env
 
 # Spyder project settings
 
@@ -237,30 +250,14 @@ Temporary Items
 
 # pytype static type analyzer
 
+# operating system-related files
+# file properties cache/storage on macOS
+# thumbnail cache on Windows
+
 # profiling data
 
-### Vim ###
-# Swap
-[._]*.s[a-v][a-z]
-!*.svg  # comment out if you don't need vector files
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
 
-# Session
-Session.vim
-Sessionx.vim
-
-# Temporary
-.netrwhist
-*~
-# Auto-generated tag files
-tags
-# Persistent undo
-[._]*.un~
-
-### vscode ###
+### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -268,7 +265,12 @@ tags
 !.vscode/extensions.json
 *.code-workspace
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,python,django,vscode,vim
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# End of https://www.toptal.com/developers/gitignore/api/python,django,visualstudiocode,macos
 
 my_settings.py
-.csv
+*.csv
