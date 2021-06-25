@@ -14,9 +14,9 @@ class SignUpView(View):
             email = data['email']
             email_pattern = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
             if email_pattern.match(email) == None:
-                return JsonResponse({'error' : 'INVALID_EMAIL'}, status=400)
+                return JsonResponse({'error':'INVALID_EMAIL'}, status=400)
             if len(data['password']) < 8:
-                return JsonResponse({'error' : 'INVALID_PASSWORD'}, status=400)
+                return JsonResponse({'error':'INVALID_PASSWORD'}, status=400)
             else:
                 User.objects.create(
                 email = data['email'],
@@ -31,4 +31,6 @@ class SignUpView(View):
             return JsonResponse({'error':'KEY_ERROR'}, status=400)
         except IntegrityError:
             return JsonResponse({'error':'DUPLICATE_ENTRY'}, status=400)
+
+
 
