@@ -11,7 +11,7 @@ class SignupView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
-            if not validate_email(data['email']): 
+            if not validate_email(data['email']):
                 return JsonResponse({'MESSAGE':'INVALID_EMAIL'}, status = 400)
             if not validate_password(data['password']):
                 return JsonResponse({'MESSAGE':'INVALID_PASSWORD'}, status = 400)
