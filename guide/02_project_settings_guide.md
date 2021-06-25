@@ -97,12 +97,3 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
 )
 ```
-
-자, 이제 westagram 프로젝트를 위한 기본 설정이 완료 되었습니다. westagram을 위한 첫 앱을 생성해보세요! 회원가입, 로그인 등 회원을 관리할 앱을 생성하실 것이므로 앱 이름은 `user` 혹은 `account`를 추천드립니다.
-
-어떻게 만들죠?
-
-```bash
-python manage.py startapp user
-```
-앱을 만드신 뒤에는 다음 가이드를 확인해주세요.
