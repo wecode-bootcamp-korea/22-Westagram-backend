@@ -20,7 +20,7 @@ class SignUpView(View):
             else:
                 User.objects.create(
                 email = data['email'],
-                phone_number = data['phone_number'],
+                phone_number = re.sub('-', '', data['phone_number']),
                 name = data['name'],
                 nickname = data['nickname'],
                 password = data['password']
@@ -31,5 +31,4 @@ class SignUpView(View):
             return JsonResponse({'error':'KEY_ERROR'}, status=400)
         except IntegrityError:
             return JsonResponse({'error':'DUPLICATE_ENTRY'}, status=400)
-
 
