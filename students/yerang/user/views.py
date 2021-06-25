@@ -10,8 +10,11 @@ class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
 
-        if (not data['email']) or (not data['password']):
+        if not (data['email'] and data['password'] and data['phone_number'] and data['nickname']):
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+        # if (not data['email']) or (not data['password']):
+        #     return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
         if not email_validate(data['email']):
             return JsonResponse({'message': 'INVALID_EMAIL'}, status=400)
@@ -27,7 +30,7 @@ class SignUpView(View):
         
         if User.objects.filter(nickname=data['nickname']).exists():
             return JsonResponse({'message': 'NICKNAME_ALREADY_EXISTS'}, status=400)
-
+        
         User.objects.create(
             email        = data['email'],
             password     = data['password'],
