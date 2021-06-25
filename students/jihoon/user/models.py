@@ -7,6 +7,9 @@ class Account(models.Model):
     password        = models.CharField(max_length=200)
     email           = models.EmailField(max_length=200)
 
+    class Meta:
+        db_table = "acounts"
+
 
 
 
