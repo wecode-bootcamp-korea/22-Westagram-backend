@@ -14,27 +14,27 @@ class UserSignUp(View):
         email               = data["email"]
         phone_number        = data["phone_number"]
         users               = User.objects.all()
-        users_email_data    =  [user.email for user in users]
-        users_password_data =  [user.password for user in users]
+        users_email_data    = [user.email for user in users]
+        users_password_data = [user.password for user in users]
 
         # email or password 가 전달 되지 않았을 경우
         if email is False or password is False:
             return JsonResponse({"message": "KEY_ERROR"}, status=400 )
         
         # eamil validation
-        elif re.match('^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]\.+$', email):
+        elif re.match('^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$', email) is None:
             return JsonResponse({"message": "INAPPROPRIATE_EMAIL"}, status=400 )
         
         # password validation
-        elif re.match('[!@#$?a-zA-Z0-9]{8:30}', password) is False:
+        elif re.match('[a-zA-Z0-9\!\@\#\$\?]{8,}', password) is None:            
             return JsonResponse({"message": "INAPPROPRIATE_PASSWORD"}, status=400 )
 
         # phone_number validation
-        elif re.match('[0-9]{7,8}', phone_number) is False:
+        elif re.match('[0-9]{10,12}', phone_number) is None:
             return JsonResponse({"message": "INAPPROPRIATE_PHONE_NUMBER"}, status=400 )
             
         # 중복 가입
-        elif email in users_email_data or password in users_password_data:
+        elif email in users_email_data or phone_number in users_password_data:
             return JsonResponse({"message": "ALREADY_USER"}, status=400 )
 
         else:
