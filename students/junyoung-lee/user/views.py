@@ -7,7 +7,7 @@ from django.views import View
 from user.models import User
 from user.validators import validate_email, validate_password, validate_name, validate_phone_number
 
-class UserView(View):
+class SignupView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
