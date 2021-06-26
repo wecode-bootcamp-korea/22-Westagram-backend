@@ -4,7 +4,7 @@ from django.views import View
 from django.http  import JsonResponse
 from django.utils import timezone
 
-from postings.models import Posting, Comment
+from postings.models import Posting, Comment, Like
 from users.models    import User
 
 class PostingView(View):
@@ -85,3 +85,28 @@ class CommentView(View):
         except Posting.DoesNotExist:
             return JsonResponse({"message": "INVALID_POSTING"}, status=400)
 
+class LikeView(View):
+    def post(self, request, posting_id, user_id):
+        try:
+            posting = Posting.objects.get(id=posting_id)
+            user = User.objects.get(id=user_id)
+
+            Like.objects.create(posting=posting, user=user)
+            
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"}, status=400)
+
+    def get(self, request, posting_id):
+        try:
+            posting = Posting.objects.get(id=posting_id)
+            results = [user.nickname for user in posting.like_user.all()]
+            
+            return JsonResponse({"results": results}, status=200)
+        
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
