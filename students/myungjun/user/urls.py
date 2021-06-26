@@ -1,4 +1,4 @@
 from django.urls import path
 from user.views import UserView
 
-urlpatterns = [path("", UserView.as_view())]
+urlpatterns = [path("/join", UserView.as_view())]
