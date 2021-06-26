@@ -17,10 +17,10 @@ class SignUpView(View):
                 return JsonResponse({"message":"Invald_email_format"}, status=400)
             if not password_regex.match(data['password']):
                 return JsonResponse({"message":"Invalid_password"}, status=400)
-            if User.objects.filter(phone_number=data['phone_number']).exists():
+            if User.objects.filter(phonenumber=data['phonenumber']).exists():
                 return JsonResponse({"message":"Phonenumber_exist"}, status=400)
-            if User.objects.filter(nickname=data['nick_name']).exists():
-                return JsonResponse({"message":"nickname_exist"}, status=400)    
+            if User.objects.filter(nick_name=data['nick_name']).exists():
+                return JsonResponse({"message":"nick_name_exist"}, status=400)    
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({"message":"email_exist"}, status=400)
 
