@@ -10,7 +10,7 @@ from django.core.validators  import validate_email
 
 from user.models import User
 
-class UserView(View):
+class SignupView(View):
     def post(self, request):
         email_regex = re.compile("^[^@\s]+@[^@\s\.]+\.[^@\.\s]+$")
         password_regex = re.compile("^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$")
