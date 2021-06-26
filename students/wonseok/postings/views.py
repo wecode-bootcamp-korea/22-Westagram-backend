@@ -6,9 +6,9 @@ from django.core.exceptions import ValidationError
 from json.decoder import JSONDecodeError
 
 from user.models import User
-from postings.models import Post
+from postings.models import Comment, Post
 
-class RegisterPostView(View):
+class CreatePostView(View):
     def post(self, request):
         try:
             data = json.loads(request.body) 
@@ -26,10 +26,11 @@ class RegisterPostView(View):
         except ValidationError as error:
             return JsonResponse({"message":error.message}, status=400)
         except Exception as error:
+            print(error)
             return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
         return JsonResponse({"message":"success"}, status=201)
 
-class ShowPostView(View):
+class ReadPostView(View):
     def get(self, request):
         posts_queryset = Post.objects.all()
         all_posts = []
@@ -48,3 +49,18 @@ class ShowPostView(View):
             }
             all_posts.append(post)
         return JsonResponse({"message":"success", "result":all_posts}, status=200)
+
+class CreateCommentView(View):
+    def post(self, request):
+        try:
+            data    = json.loads(request.body)
+            print(data)
+            user    = User.objects.get(id=data["user_id"])
+            post    = Post.objects.get(id=data["post_id"])
+            content = data["content"]
+            comment = Comment.objects.create(user=user, post=post, content=content)
+            print(comment)
+        except Exception as error:
+            print(error)
+            return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=201)
