@@ -75,6 +75,7 @@ class CommentView(View):
             results = []
             for comment in comments:
                 results.append({
+                    "user"       : comment.user.nickname,
                     "contents"   : comment.contents,
                     "created_at" : comment.created_at,
                     })  
