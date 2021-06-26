@@ -38,21 +38,22 @@ class PostingView(View):
                 "image_url"  : posting.image_url,
                 "created_at" : posting.created_at,
                 })
+
         return JsonResponse({"results": results}, status=200)
 
 class CommentView(View):
-    def post(self, request):
+    def post(self, request, posting_id):
         data = json.loads(request.body)
 
         try:
-            posting = Posting.objects.get(id=data['posting_id'])
-            user = User.objects.get(email=data['email'])
+            posting = Posting.objects.get(id=posting_id)
+            user    = User.objects.get(email=data['email'])
 
             Comment.objects.create(
-                    posting = posting,
-                    user = user,
+                    posting    = posting,
+                    user       = user,
                     created_at = timezone.localtime(),
-                    contents = data['contents']
+                    contents   = data['contents']
                     )
             
             return JsonResponse({"message": "SUCCESS"}, status=201)
@@ -65,4 +66,21 @@ class CommentView(View):
 
         except User.DoesNotExist:
             return JsonResponse({"message": "INVALID_USER"}, status=400)
+
+    def get(self, request, posting_id):
+        try:
+            posting  = Posting.objects.get(id=posting_id)
+            comments = posting.comment_set.all()
+
+            results = []
+            for comment in comments:
+                results.append({
+                    "contents"   : comment.contents,
+                    "created_at" : comment.created_at,
+                    })  
+            
+            return JsonResponse({"results": results}, status=200)
+
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
 
