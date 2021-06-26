@@ -21,6 +21,7 @@ class SignupView(View):
                 email        = data["email"],
                 password     = data["password"],
                 nick_name    = data["nick_name"],
+                name         = data["name"],
                 phone_number = data["phone_number"],
             )
         except KeyError:
