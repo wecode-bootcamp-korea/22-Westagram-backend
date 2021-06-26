@@ -4,7 +4,7 @@ from django.views import View
 from django.http  import JsonResponse
 from django.utils import timezone
 
-from postings.models import Posting
+from postings.models import Posting, Comment
 from users.models    import User
 
 class PostingView(View):
@@ -15,10 +15,10 @@ class PostingView(View):
             user = User.objects.get(email=data['email'])
 
             Posting.objects.create(
-                user       = user,
-                created_at = timezone.localtime(),
-                image_url  = data['image_url']
-            )
+                    user       = user,
+                    created_at = timezone.localtime(),
+                    image_url  = data['image_url']
+                    )
 
             return JsonResponse({"message": "SUCCESS"}, status=201)
         
@@ -37,6 +37,32 @@ class PostingView(View):
                 "nickname"   : posting.user.nickname,
                 "image_url"  : posting.image_url,
                 "created_at" : posting.created_at,
-            })
+                })
         return JsonResponse({"results": results}, status=200)
+
+class CommentView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        try:
+            posting = Posting.objects.get(id=data['posting_id'])
+            user = User.objects.get(email=data['email'])
+
+            Comment.objects.create(
+                    posting = posting,
+                    user = user,
+                    created_at = timezone.localtime(),
+                    contents = data['contents']
+                    )
+            
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+        
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"}, status=400)
 

@@ -9,6 +9,13 @@ class Posting(models.Model):
     class Meta:
         db_table = 'postings'
     
-    def __str__(self):
-        return ', '.join([self.id, self.user, self.created_at, self.updated_at, self.image_url])
+class Comment(models.Model):
+    posting = models.ForeignKey('Posting', on_delete=models.CASCADE)
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    contents = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = 'comments'
 
