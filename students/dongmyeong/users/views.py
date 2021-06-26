@@ -30,3 +30,17 @@ class SignupView(View):
         except IntegrityError:
             return JsonResponse({"message": "DUPLICATE_ERROR"}, status=400)
 
+class SigninView(View):
+    def get(self, request):
+        data = json.loads(request.body)
+
+        try:
+            user = User.objects.get(email=data['email'], password=data['password'])
+            return JsonResponse({"message": "SUCCESS"}, status=200)
+
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=401)
+
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"}, status=401)
+
