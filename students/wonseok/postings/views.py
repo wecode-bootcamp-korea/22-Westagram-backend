@@ -50,6 +50,19 @@ class ReadPostView(View):
             all_posts.append(post)
         return JsonResponse({"message":"success", "result":all_posts}, status=200)
 
+class LikePostView(View):
+    def post(self, request, post_id):
+        try:
+            data        = json.loads(request.body)
+            post_object = Post.objects.get(id=post_id)
+            user_object = User.objects.get(id=data["user_id"])
+            user_object.liked_post.add(post_object)
+            print(user_object.liked_post.all())
+        except Exception as error:
+            print(error)
+            return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
+        return JsonResponse({"message":"success", "result":all_posts}, status=200)
+
 class CreateCommentView(View):
     def post(self, request):
         try:
