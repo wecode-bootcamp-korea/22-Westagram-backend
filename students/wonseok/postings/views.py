@@ -1,10 +1,9 @@
 import json
-from json.decoder import JSONDecodeError
-from django.core.exceptions import ValidationError
-from django.db.utils import Error
 
-from django.http.response import JsonResponse
 from django.views import View
+from django.http.response import JsonResponse
+from django.core.exceptions import ValidationError
+from json.decoder import JSONDecodeError
 
 from user.models import User
 from postings.models import Post
@@ -13,7 +12,7 @@ class RegisterPostView(View):
     def post(self, request):
         try:
             data = json.loads(request.body) 
-            if User.objects.filter(id=data["user_id"]):
+            if User.objects.filter(id=data["user_id"]).exists():
                 user = User.objects.get(id= data["user_id"])
             else:
                 raise ValidationError(message="USER_DOESN'T EXIST")
@@ -34,18 +33,18 @@ class ShowPostView(View):
     def get(self, request):
         posts_queryset = Post.objects.all()
         all_posts = []
-        for p in posts_queryset:
+        for post_object in posts_queryset:
             user = {
-                "nick_name":p.user.nick_name,
-                "email":p.user.email,
-                "phone_number":p.user.phone_number,
-                "created_at":p.user.created_at,
+                "nick_name":post_object.user.nick_name,
+                "email":post_object.user.email,
+                "phone_number":post_object.user.phone_number,
+                "created_at":post_object.user.created_at,
             }
             post = {
                 "user":user,
-                "image_url":p.image_url,
-                "content":p.content,
-                "created_at":p.created_at
+                "image_url":post_object.image_url,
+                "content":post_object.content,
+                "created_at":post_object.created_at
             }
             all_posts.append(post)
         return JsonResponse({"message":"success", "result":all_posts}, status=200)
