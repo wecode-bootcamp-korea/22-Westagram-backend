@@ -1,24 +1,21 @@
 import json
 from json.decoder import JSONDecodeError
-import re
 
 from django.http import JsonResponse
 from django.views import View
 from django.core.exceptions import ValidationError
 from django.db.utils import DataError, IntegrityError
-from django.core.validators  import validate_email
 
 from user.models import User
+from user.validation import validate_email, validate_password
 
 class SignupView(View):
     def post(self, request):
-        email_regex = re.compile("^[^@\s]+@[^@\s\.]+\.[^@\.\s]+$")
-        password_regex = re.compile("^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$")
         try:
             data = json.loads(request.body)
-            if not email_regex.match(data["email"]):
+            if not validate_email(data["email"]):
                 raise ValidationError(message="EMAIL_VALIDATION_ERROR")
-            if not password_regex.match(data["password"]):
+            if not validate_password(data["password"]):
                 raise ValidationError(message="PASSWORD_VALIDATION_ERROR")
             User.objects.create(
                 email        = data["email"],
