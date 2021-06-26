@@ -37,3 +37,24 @@ class SignupView(View):
             return JsonResponse({"message": "UNCATCHED_ERROR"}, status=400)
         return JsonResponse({"message": "SUCCESS"}, status=201)
 
+class LoginView(View):
+    def post(self,request):
+        try:
+            data = json.loads(request.body)
+            if not validate_email(email=data["email"]):
+                raise ValidationError(message="INVALID_USER")
+            if not validate_password(password=data["password"]):
+                raise ValidationError(message="INVALID_USER")
+            if User.objects.filter(email=data["email"]).exists():
+                user = User.objects.get(email=data["email"])
+            else :
+                raise ValidationError(message="INVALID_USER")
+            if not validate_password(password= data["password"]) or user.password != data["password"]:
+                raise ValidationError(message="INVALID_USER")
+        except KeyError:
+            return JsonResponse({"message":"KEY_ERROR"}, status=400)
+        except ValidationError as error:
+            return JsonResponse({"message":error.message}, status=400)
+        except Exception as error:
+            return JsonResponse({"message":"NOT_CATCHED_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=200)
