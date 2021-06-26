@@ -10,13 +10,9 @@ from django.core.validators  import validate_email
 
 from user.models import User
 
-
-
 class UserView(View):
     def post(self, request):
-        # contains @ . and other characters inside them
         email_regex = re.compile("^[^@\s]+@[^@\s\.]+\.[^@\.\s]+$")
-        # Minimum eight characters, at least one letter, one number and one special character
         password_regex = re.compile("^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$")
         try:
             data = json.loads(request.body)
@@ -42,6 +38,5 @@ class UserView(View):
             return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
         except Exception:
             return JsonResponse({"message": "UNCATCHED_ERROR"}, status=400)
-
         return JsonResponse({"message": "SUCCESS"}, status=201)
 
