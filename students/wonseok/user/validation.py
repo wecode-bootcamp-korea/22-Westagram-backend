@@ -1,6 +1,5 @@
 import re
 
-
 def validate_email(email):
     email_regex = re.compile("^[^@\s]+@[^@\s\.]+\.[^@\.\s]+$")
     return email_regex.match(email)

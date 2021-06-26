@@ -1,10 +1,10 @@
 import json
-from json.decoder import JSONDecodeError
 
 from django.http import JsonResponse
 from django.views import View
 from django.core.exceptions import ValidationError
 from django.db.utils import DataError, IntegrityError
+from json.decoder import JSONDecodeError
 
 from user.models import User
 from user.validation import validate_email, validate_password
