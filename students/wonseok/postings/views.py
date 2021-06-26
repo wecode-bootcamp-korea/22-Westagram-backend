@@ -49,3 +49,33 @@ class ReadPostView(View):
             }
             all_posts.append(post)
         return JsonResponse({"message":"success", "result":all_posts}, status=200)
+
+class CreateCommentView(View):
+    def post(self, request):
+        try:
+            data    = json.loads(request.body)
+            print(data)
+            user    = User.objects.get(id=data["user_id"])
+            post    = Post.objects.get(id=data["post_id"])
+            content = data["content"]
+            comment = Comment.objects.create(user=user, post=post, content=content)
+            print(comment)
+        except Exception as error:
+            print(error)
+            return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=201)
+
+class ReadCommentView(View):
+    def get(self, request, post_id):
+        post = Post.objects.get(id=post_id)
+        comments_queryset = Comment.objects.filter(post=post)
+        comments = []
+        for comment_object in comments_queryset:
+            comment = {
+                "user_nick_name" : comment_object.user.nick_name,
+                "content" : comment_object.content,
+                "created_at" : comment_object.created_at
+            }
+            comments.append(comment)
+        return JsonResponse({"message":"success", "result":comments}, status=201)
+        
