@@ -9,6 +9,3 @@ class Posting(models.Model):
     class Meta:
         db_table = 'postings'
     
-    def __str__(self):
-        return ', '.join([self.id, self.user, self.created_at, self.updated_at, self.image_url])
-
