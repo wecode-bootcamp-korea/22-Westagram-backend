@@ -50,6 +50,32 @@ class ReadPostView(View):
             all_posts.append(post)
         return JsonResponse({"message":"success", "result":all_posts}, status=200)
 
+class UpdatePostView(View):
+    def post(self, request, post_id):
+        try:
+            data = json.loads(request.body)
+            if not Post.objects.filter(id=post_id).exists():
+                raise Post.DoesNotExist
+            post_queryset = Post.objects.filter(id=post_id)
+            if post_queryset[0].user != User.objects.get(id=data["user_id"]):
+                raise ValidationError(message="USER_NOT_MATCH")
+            post_queryset.update(content=data["content"])
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message":"JSON_DECODE_ERROR"}, status=400)
+        except ValueError:
+            return JsonResponse({"message": "VALUE_ERROR"}, status=400)
+        except ValidationError as error:
+            return JsonResponse({"message":error.message}, status=400)
+        except Post.DoesNotExist:
+            return JsonResponse({"message":"POST_NOT_EXIST"}, status=400)
+        except Exception as error:
+            print(error.__class__)
+            print(error)
+            return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=201)
+
 class DeletePostView(View):
     def post(self, request, post_id):
         try:
