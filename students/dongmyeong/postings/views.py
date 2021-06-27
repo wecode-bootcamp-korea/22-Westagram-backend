@@ -12,7 +12,7 @@ class PostingView(View):
         data = json.loads(request.body)
 
         try:
-            user = User.objects.get(email=data['email'])
+            user = User.objects.get(id=data['user'])
 
             Posting.objects.create(
                     user       = user,
@@ -41,13 +41,32 @@ class PostingView(View):
 
         return JsonResponse({"results": results}, status=200)
 
+    def delete(self, request, posting_id):
+        data = json.loads(request.body)
+
+        try:
+            user = User.objects.get(id=data['user'])
+            Posting.objects.get(id=posting_id, user=user).delete()
+
+            return JsonResponse({"message": "SUCCESS"}, status=200)
+
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+        
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"}, status=400)
+        
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        
+
 class CommentView(View):
     def post(self, request, posting_id):
         data = json.loads(request.body)
 
         try:
             posting = Posting.objects.get(id=posting_id)
-            user    = User.objects.get(email=data['email'])
+            user    = User.objects.get(id=data['user'])
 
             Comment.objects.create(
                     posting    = posting,
@@ -85,14 +104,42 @@ class CommentView(View):
         except Posting.DoesNotExist:
             return JsonResponse({"message": "INVALID_POSTING"}, status=400)
 
-class LikeView(View):
-    def post(self, request, posting_id, user_id):
+    def delete(self, request, posting_id, comment_id):
+        data = json.loads(request.body)
+        
         try:
             posting = Posting.objects.get(id=posting_id)
-            user = User.objects.get(id=user_id)
+            user    = User.objects.get(id=data['user'])
 
-            Like.objects.create(posting=posting, user=user)
+            posting.comment_set.get(id=comment_id, user=user).delete()
             
+            return JsonResponse({"message": "SUCCESS"}, status=200)
+
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+        
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"}, status=400)
+        
+        except Comment.DoesNotExist:
+            return JsonResponse({"message": "INVALID_COMMENT"}, status=400)
+
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+class LikeView(View):
+    def post(self, request, posting_id):
+        data = json.loads(request.body)
+
+        try:
+            posting = Posting.objects.get(id=posting_id)
+            user = User.objects.get(id=data['user'])
+
+            like, created = Like.objects.get_or_create(posting=posting, user=user)
+            
+            if not created:
+                return JsonResponse({"message": "DUPLICATE_ERROR"}, status=400)
+
             return JsonResponse({"message": "SUCCESS"}, status=201)
 
         except Posting.DoesNotExist:
@@ -100,6 +147,9 @@ class LikeView(View):
 
         except User.DoesNotExist:
             return JsonResponse({"message": "INVALID_USER"}, status=400)
+
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
     def get(self, request, posting_id):
         try:
@@ -110,3 +160,27 @@ class LikeView(View):
         
         except Posting.DoesNotExist:
             return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+
+    def delete(self, request, posting_id):
+        data = json.loads(request.body)
+
+        try:
+            posting = Posting.objects.get(id=posting_id)
+            user = User.objects.get(id=data['user'])
+
+            Like.objects.get(posting=posting, user=user).delete()
+            
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"}, status=400)
+
+        except Like.DoesNotExist:
+            return JsonResponse({"message": "INVALID_LIKE"}, status=400)
+
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
