@@ -1,50 +1,46 @@
 import json, re
 
-from django.views   import View
-from django.http    import JsonResponse
+from django.views           import View
+from django.http            import JsonResponse
+from django.db              import IntegrityError
 from django.core.exceptions import ValidationError
-# from django.core.validators import validate_email
 
-from user.models    import User
+from user.models            import User
+from user.validators        import validate_email_regex, validate_password, check_phone_number
 
 class SignUpView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
 
-            # # email validation (validate_email)
-            # validate_email(data['email'])
-
             # email validation (정규표현식)
-            email_validation = re.compile('^[a-zA-Z0-9+-_.]+@+[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-            if not email_validation.match(data['email']):
-                return JsonResponse({'message': 'ValidationError'}, status=400)
+            validate_email_regex(data['email'])
 
             # password validation
-            if len(data['password']) < 8:
-                return JsonResponse({'ValidationError': "This password is too short."}, status=400)
+            validate_password(data['password'])
 
-            # integrity
-            if User.objects.filter(email=data['email']).exists():
-                return JsonResponse({'IntegrityError': "Email already in use"}, status=400)
-            if User.objects.filter(phone=data['phone']).exists():
-                return JsonResponse({'IntegrityError': "Phone number already in use"}, status=400)
-            if User.objects.filter(nickname=data['nickname']).exists():
-                return JsonResponse({'IntegrityError': "Nickname already in use"}, status=400)
+            # phone input check (입력값 중간 '-' 혹은 '.' 제거하기)
+            phone_checked = check_phone_number(data['phone'])
 
             user = User.objects.create(
                 email    = data['email'],
                 password = data['password'],
-                phone    = data['phone'],
+                phone    = phone_checked,
                 nickname = data['nickname']
             )
-            return JsonResponse({'MESSAGE': 'SUCCESS'}, status=201)
+            return JsonResponse({'message': 'SUCCESS'}, status=201)
 
+        # 필수 항목이 비어있는지 체크
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
-            
-        # except ValidationError:
-        #     return JsonResponse({'MESSAGE': 'ValidationError'}, status=400)
+
+        # 계정 정보가 이미 등록되어 있는지 체크
+        except IntegrityError:
+            return JsonResponse({'message': 'IntegrityError: already in use'})
+
+        # email, password validation 
+        except ValidationError:
+            return JsonResponse({'message': 'ValidationError'}, status=400)
 
     def get(self, request):
         users = User.objects.all()
