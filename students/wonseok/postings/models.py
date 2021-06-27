@@ -26,8 +26,18 @@ class Comment(models.Model):
     user        = models.ForeignKey(User, on_delete=models.CASCADE)
     post        = models.ForeignKey(Post, on_delete=models.CASCADE)
     content     = models.TextField()
+    liked_user  = models.ManyToManyField(User,through="CommentLikeUser", related_name="liked_comment")
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta():
         db_table = "comments"
+
+class CommentLikeUser(models.Model):
+    user        = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment     = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+    
+    class Meta():
+        db_table = "comments_like_users"

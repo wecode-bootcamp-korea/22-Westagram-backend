@@ -56,25 +56,41 @@ class LikePostView(View):
             data        = json.loads(request.body)
             post_object = Post.objects.get(id=post_id)
             user_object = User.objects.get(id=data["user_id"])
-            user_object.liked_post.add(post_object)
-            print(user_object.liked_post.all())
+            if post_object.liked_user.filter(id=user_object.id).exists():
+                user_object.liked_post.remove(post_object)
+            else:
+                user_object.liked_post.add(post_object)
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message":"JSON_DECODE_ERROR"}, status=400)
+        except Post.DoesNotExist:
+            return JsonResponse({"message":"POST_NOT_EXIST"}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message":"USER_NOT_EXIST"}, status=400)
         except Exception as error:
-            print(error)
+            print(error.__class__.__name__)
             return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
         return JsonResponse({"message":"success"}, status=201)
 
 class CreateCommentView(View):
-    def post(self, request):
+    def post(self, request, post_id):
         try:
             data    = json.loads(request.body)
-            print(data)
             user    = User.objects.get(id=data["user_id"])
-            post    = Post.objects.get(id=data["post_id"])
+            post    = Post.objects.get(id=post_id)
             content = data["content"]
-            comment = Comment.objects.create(user=user, post=post, content=content)
-            print(comment)
+            Comment.objects.create(user=user, post=post, content=content)
+        except KeyError:
+            return JsonResponse({"message":"KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message":"JSON_DECODE_ERROR"}, status=400)
+        except Post.DoesNotExist:
+            return JsonResponse({"message":"POST_NOT_EXIST"}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message":"USER_NOT_EXIST"}, status=400)
         except Exception as error:
-            print(error)
+            print(error.__class__.__name__)
             return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
         return JsonResponse({"message":"success"}, status=201)
 
@@ -92,3 +108,25 @@ class ReadCommentView(View):
             comments.append(comment)
         return JsonResponse({"message":"success", "result":comments}, status=201)
         
+class LikeCommentView(View):
+    def post(self, request, post_id):
+        try:
+            data = json.loads(request.body)
+            comment_object = Comment.objects.get(id=data["comment_id"])
+            user = User.objects.get(id=data["user_id"])
+            if comment_object.liked_user.filter(id=user.id):
+                comment_object.liked_user.remove(user)
+            else:
+                comment_object.liked_user.add(user)
+        except KeyError:
+            return JsonResponse({"message":"KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message":"JSON_DECODE_ERROR"}, status=400)
+        except Comment.DoesNotExist:
+            return JsonResponse({"message":"COMMENT_NOT_EXIST"}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message":"USER_NOT_EXIST"}, status=400)
+        except Exception as error:
+            print(error.__class__.__name__)
+            return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=201)
