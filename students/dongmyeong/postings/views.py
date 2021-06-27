@@ -133,7 +133,7 @@ class LikeView(View):
 
         try:
             posting = Posting.objects.get(id=posting_id)
-            user = User.objects.get(id=data['user'])
+            user    = User.objects.get(id=data['user'])
 
             like, created = Like.objects.get_or_create(posting=posting, user=user)
             
@@ -166,9 +166,9 @@ class LikeView(View):
 
         try:
             posting = Posting.objects.get(id=posting_id)
-            user = User.objects.get(id=data['user'])
+            user    = User.objects.get(id=data['user'])
 
-            Like.objects.get(posting=posting, user=user).delete()
+            posting.like_set.get(user=user).delete()
             
             return JsonResponse({"message": "SUCCESS"}, status=201)
 
