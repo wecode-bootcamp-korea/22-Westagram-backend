@@ -50,6 +50,32 @@ class ReadPostView(View):
             all_posts.append(post)
         return JsonResponse({"message":"success", "result":all_posts}, status=200)
 
+class DeletePostView(View):
+    def post(self, request, post_id):
+        try:
+            data          = json.loads(request.body)
+            post_instance = Post.objects.get(id=post_id)
+            user_instance = User.objects.get(id=data["user_id"])
+            if post_instance.user != user_instance:
+                raise ValidationError(message="USER_NOT_MATCH")
+            post_instance.delete()
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message":"JSON_DECODE_ERROR"}, status=400)
+        except ValidationError as error:
+            return JsonResponse({"message":error.message}, status=400)
+        except ValueError:
+            return JsonResponse({"message": "VALUE_ERROR"}, status=400)
+        except Post.DoesNotExist:
+            return JsonResponse({"message":"POST_NOT_EXIST"}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message":"USER_NOT_EXIST"}, status=400)
+        except Exception as error:
+            print(error.__class__)
+            return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=201)
+
 class LikePostView(View):
     def post(self, request, post_id):
         try:
@@ -96,9 +122,9 @@ class CreateCommentView(View):
 
 class ReadCommentView(View):
     def get(self, request, post_id):
-        post = Post.objects.get(id=post_id)
+        post              = Post.objects.get(id=post_id)
         comments_queryset = Comment.objects.filter(post=post)
-        comments = []
+        comments          = []
         for comment_object in comments_queryset:
             comment = {
                 "user_nick_name" : comment_object.user.nick_name,
@@ -107,7 +133,34 @@ class ReadCommentView(View):
             }
             comments.append(comment)
         return JsonResponse({"message":"success", "result":comments}, status=201)
-        
+
+class DeleteCommentView(View):
+    def post(self, request, post_id):
+        try:
+            data             = json.loads(request.body)
+            user_instance    = User.objects.get(id=data["user_id"])
+            comment_instance = Comment.objects.get(id=data["comment_id"])
+            print(comment_instance.user == user_instance)
+            if comment_instance.user != user_instance:
+                raise ValidationError(message="USER_NOT_MATCH")
+            comment_instance.delete()
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message":"JSON_DECODE_ERROR"}, status=400)
+        except ValidationError as error:
+            return JsonResponse({"message":error.message}, status=400)
+        except ValueError:
+            return JsonResponse({"message": "VALUE_ERROR"}, status=400)
+        except Comment.DoesNotExist:
+            return JsonResponse({"message":"COMMENT_NOT_EXIST"}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message":"USER_NOT_EXIST"}, status=400)
+        except Exception as error:
+            print(error.__class__)
+            return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=201)
+
 class LikeCommentView(View):
     def post(self, request, post_id):
         try:
