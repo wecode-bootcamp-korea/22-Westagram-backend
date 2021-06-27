@@ -7,18 +7,30 @@ from users.models   import Account
 
 class SignInView(View):
     def post(self, request):
-        signin_data = json.loads(request.body)
+        data = json.loads(request.body)
+
+    #      try:
+    #          if not (data['email'] and data['password']):
+    #              return JsonResponse({'message':'KEY_ERROR'}, status=401)
+    #          if Account.objects.filter(email=data['email']).exists():
+    #              email = Account.objects.get(email=data['email'])
+    #              if email.password == data['password']:
+    #                  return JsonResponse({'message': 'SUCCESS'}, status=200)
+    #              else:
+    #                  return JsonResponse({'message': 'INAVLID_PASSWORD'}, status=401)
+    #          else:
+    #              return JsonResponse({'message': 'INVALID_USER'}, status=401)
+    #      except KeyError:
+            #  return JsonResponse({'message': 'KEY_ERROR'}, status=401)
 
         try:
-            if not (signin_data['email'] and signin_data['password']):
-                return JsonResponse({'message':'KEY_ERROR'}, status=401)
-            if Account.objects.filter(email=signin_data['email']).exists():
-                email = Account.objects.get(email=signin_data['email'])
-                if email.password == signin_data['password']:
+            if Account.objects.filter(email=data['email']).exists():
+                email = Account.objects.get(email=data['email'])
+                if email.password == data['password']:
                     return JsonResponse({'message': 'SUCCESS'}, status=200)
-                else: 
-                    return JsonResponse({'message': 'INAVLID_PASSWORD'}, status=401)
+                else:
+                    return JsonResponse({'message':'INVALID_PASSWORD'}, status=401)
             else:
-                return JsonResponse({'message': 'INVALID_USER'}, status=401)
+                return JsonResponse({'message':'INAVLID_USER'}, status=401)
         except KeyError:
-            return JsonResponse({'message': 'KEY_ERROR222'}, status=401)
+            return JsonResponse({'message': 'KeyError'}, status=401)
