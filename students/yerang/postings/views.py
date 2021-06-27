@@ -71,16 +71,7 @@ class CommentView(View):
         return JsonResponse({'message': 'SUCCESS'}, status=200)
 
     def get(self, request, post_id):
-        # results  = []
         comments = Comment.objects.filter(post_id=post_id)
-
-        # for comment in comments:
-        #     results.append(
-        #         {
-        #             'NickName': comment.user.nickname,
-        #             'Comment' : comment.comment
-        #         }
-        #     )
         results = [comment.comment for comment in comments]
         
         return JsonResponse({'results': results}, status=201)
