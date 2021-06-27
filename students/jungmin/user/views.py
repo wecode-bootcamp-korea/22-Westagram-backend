@@ -1,4 +1,4 @@
-import json, re
+import json
 
 from django.views           import View
 from django.http            import JsonResponse
@@ -41,17 +41,3 @@ class SignUpView(View):
         # email, password validation 
         except ValidationError:
             return JsonResponse({'message': 'ValidationError'}, status=400)
-
-    def get(self, request):
-        users = User.objects.all()
-        results = []
-        for user in users:
-            results.append(
-                {
-                    'email'   : user.email,
-                    'password': user.password,
-                    'phone'   : user.phone,
-                    'nickname': user.nickname
-                }
-            )
-        return JsonResponse({'results': results}, status=200)

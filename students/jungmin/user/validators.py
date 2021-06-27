@@ -1,6 +1,5 @@
 import re
 
-from django.http            import JsonResponse
 from django.core.exceptions import ValidationError
 # from django.core.validators import validate_email
 
@@ -15,13 +14,13 @@ from django.core.exceptions import ValidationError
 def validate_email_regex(email):
     email_validation = re.compile('^[a-zA-Z0-9]+[a-zA-Z0-9+-_.]*@+[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
     if not email_validation.match(email):
-        raise ValidationError('validation_error')
+        raise ValidationError
 
 # password validation
 def validate_password(password):
     password_validation = re.compile('[a-zA-Z0-9]{8,45}')
     if not password_validation.match(password):
-        raise ValidationError('validation_error')
+        raise ValidationError
 
 # phone number input check (입력값 중간 '-' 혹은 '.' 제거하기)
 def check_phone_number(phone):
