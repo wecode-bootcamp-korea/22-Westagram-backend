@@ -16,4 +16,17 @@ class PostView(View):
             user    = data["user_id"],
         )
         
-    
+    def get(self, request):
+        posts = Post.objects.all()
+        
+        result = []
+
+        for post in posts:
+            result.append({
+                "user": post.user.nick_name,
+                "img": post.img,
+                "content": post.content,
+                "created_at": post.created_at,
+            })
+
+        return JsonResponse({"result" : result}, status=200)

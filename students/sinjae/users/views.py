@@ -7,7 +7,7 @@ from django.views                 import View
 
 from users.models                 import User
 
-class UserSignUp(View):
+class SignUp(View):
     def post(self, request):
         data = json.loads(request.body)
         password            = data["password"]
@@ -49,3 +49,21 @@ class UserSignUp(View):
         )
 
             return JsonResponse({"MESSAGE": "SUCESS"}, status=201)
+
+class SignIn(View):
+    def post(self, request):
+        data          = json.loads(request.body)
+        email         = data["email"]
+        password      = data["password"]
+        users         = User.objects.all()
+        user_password = User.objects.get(email=email).password
+        email_data    = [user.email for user in users]
+
+        if email is False or password is False:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400 )
+
+        elif email not in email_data or password != user_password:
+            return JsonResponse({"message": "INVALID_USER"}, status=401)
+
+        else:
+            return JsonResponse({"message": "SUCCESS"}, status=200)
