@@ -4,7 +4,7 @@ from django.views import View
 from django.http  import JsonResponse
 from django.utils import timezone
 
-from postings.models import Posting, Comment, Like
+from postings.models import Posting, Comment, Like, Recomment
 from users.models    import User
 
 class PostingView(View):
@@ -200,6 +200,86 @@ class LikeView(View):
 
         except Like.DoesNotExist:
             return JsonResponse({"message": "INVALID_LIKE"}, status=400)
+
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+class RecommentView(View):
+    def post(self, request, posting_id, comment_id):
+        data = json.loads(request.body)
+
+        try:
+            posting = Posting.objects.get(id=posting_id)
+            comment = posting.comment_set.get(id=comment_id)
+            user    = User.objects.get(id=data['user'])
+
+            Recomment.objects.create(
+                    posting    = posting,
+                    comment    = comment,
+                    user       = user,
+                    created_at = timezone.localtime(),
+                    contents   = data['contents']
+                    )
+            
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+        
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+        except Posting.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+
+        except Comment.DoesNotExist:
+            return JsonResponse({"message": "INVALID_COMMENT"}, status=400)
+
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"}, status=400)
+
+    def get(self, request, posting_id, comment_id):
+        try:
+            comment = Comment.objects.get(id=comment_id)
+            recomments = comment.recomment_set.all()
+
+            results = []
+            for recomment in recomments:
+                results.append({
+                    "user"       : recomment.user.nickname,
+                    "contents"   : recomment.contents,
+                    "created_at" : recomment.created_at,
+                    })  
+            
+            return JsonResponse({"results": results}, status=200)
+
+        except Comment.DoesNotExist:
+            return JsonResponse({"message": "INVALID_POSTING"}, status=400)
+
+    def put(self, request, posting_id, comment_id, recomment_id):
+        data = json.loads(request.body)
+        
+        try:
+            recomment = Recomment.objects.get(id=recomment_id, user_id=data['user'])
+
+            recomment.contents = data['contents']
+            recomment.save()
+
+            return JsonResponse({"message": "SUCCESS"}, status=200)
+
+        except Recomment.DoesNotExist:
+            return JsonResponse({"message": "INVALID_RECOMMENT"}, status=400)
+
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+    def delete(self, request, posting_id, comment_id, recomment_id):
+        data = json.loads(request.body)
+        
+        try:
+            Recomment.objects.get(id=recomment_id, user_id=data['user']).delete()
+
+            return JsonResponse({"message": "SUCCESS"}, status=200)
+
+        except Recomment.DoesNotExist:
+            return JsonResponse({"message": "INVALID_RECOMMENT"}, status=400)
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)

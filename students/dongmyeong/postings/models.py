@@ -28,3 +28,14 @@ class Like(models.Model):
     class Meta:
         db_table = 'likes'
 
+class Recomment(models.Model):
+    posting    = models.ForeignKey('Posting', on_delete=models.CASCADE)
+    comment    = models.ForeignKey('Comment', on_delete=models.CASCADE)
+    user       = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    contents   = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = 'recomments'
+
