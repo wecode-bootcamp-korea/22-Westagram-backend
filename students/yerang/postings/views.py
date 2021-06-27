@@ -5,7 +5,7 @@ from django.views import View
 from django.utils import timezone
 
 from postings.models import Post, Comment
-from user.models     import User
+from user.models     import User, Like
 
 class PostView(View):
     def post(self, request):
@@ -28,7 +28,7 @@ class PostView(View):
         except Exception as e:
             return JsonResponse({'message': e})
 
-        return JsonResponse({'message': 'SUCCESS'}, status=200)
+        return JsonResponse({'message': 'SUCCESS'}, status=201)
     
     def get(self, request):
         results = []
@@ -43,7 +43,7 @@ class PostView(View):
                 }
             )
         
-        return JsonResponse({'results': results}, status=201)
+        return JsonResponse({'results': results}, status=200)
 
 class CommentView(View):
     def post(self, request, post_id):
@@ -68,13 +68,50 @@ class CommentView(View):
         except Exception as e:
             return JsonResponse({'message': e})
 
-        return JsonResponse({'message': 'SUCCESS'}, status=200)
+        return JsonResponse({'message': 'SUCCESS'}, status=201)
 
     def get(self, request, post_id):
+        if not Post.objects.filter(id=post_id).exists():
+            return JsonResponse({'message': 'POST_DOES_NOT_EXISTS'}, status=400)
+            
         comments = Comment.objects.filter(post_id=post_id)
         results = [comment.comment for comment in comments]
         
-        return JsonResponse({'results': results}, status=201)
+        return JsonResponse({'results': results}, status=200)
+
+class LikeView(View):
+    def post(self, request, post_id, user_id):
+        try:
+            if not Post.objects.filter(id=post_id).exists():
+                return JsonResponse({'message': 'POST_DOES_NOT_EXISTS'}, status=400)
+                
+            if not User.objects.filter(id=user_id).exists():
+                return JsonResponse({'message': 'USER_DOES_NOT_EXISTS'}, status=400)
+
+            Like.objects.create(
+                post_id = post_id,
+                user_id = user_id,
+            )
+        except Exception as e:
+            return JsonResponse({'message': e})
+
+        return JsonResponse({'message': 'SUCCESS'}, status=201)
+
+    def get(self, request, post_id):
+        if not Post.objects.filter(id=post_id).exists():
+            return JsonResponse({'message': 'POST_DOES_NOT_EXISTS'}, status=400)
+        
+        results = []
+        post = Post.objects.get(id=post_id)
+        count = post.liked_users.count()
+
+        for liked_user in post.liked_users.all():
+            results.append(
+                {
+                    'NickName': liked_user.nickname,
+                    'Email'   : liked_user.email,
+                }
+            )
 
 
-            
+        return JsonResponse({f'{count}명이 좋아합니다.': results}, status=200)
