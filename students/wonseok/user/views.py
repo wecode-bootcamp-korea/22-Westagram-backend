@@ -59,3 +59,28 @@ class LoginView(View):
         except Exception as error:
             return JsonResponse({"message":"NOT_CATCHED_ERROR"}, status=400)
         return JsonResponse({"message":"success"}, status=200)
+
+class FollowView(View):
+    def post(self, request, user_id):
+        try:
+            data = json.loads(request.body)
+            user_instance = User.objects.get(id=user_id)
+            follower_instance = User.objects.get(id=data["follower_id"])
+            if user_instance == follower_instance:
+                raise User.DoesNotExist
+            if user_instance.follower.filter(id=data["follower_id"]).exists():
+                user_instance.follower.remove(follower_instance)
+            else:
+                user_instance.follower.add(follower_instance)
+        except KeyError:
+            return JsonResponse({"message":"KEY_ERROR"}, status=400)
+        except JSONDecodeError:
+            return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
+        except ValueError:
+            return JsonResponse({"message": "VALUE_ERROR"}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message": "USER_NOT_EXIST"}, status=400)
+        except Exception as error:
+            print(error.__class__)
+            return JsonResponse({"message":"NOT_CATCHED_ERROR"}, status=400)
+        return JsonResponse({"message":"success"}, status=200)
