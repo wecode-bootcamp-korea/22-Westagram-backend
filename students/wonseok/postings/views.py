@@ -61,7 +61,7 @@ class LikePostView(View):
         except Exception as error:
             print(error)
             return JsonResponse({"message":"UNCAUGHT_ERROR"}, status=400)
-        return JsonResponse({"message":"success", "result":all_posts}, status=200)
+        return JsonResponse({"message":"success"}, status=201)
 
 class CreateCommentView(View):
     def post(self, request):
