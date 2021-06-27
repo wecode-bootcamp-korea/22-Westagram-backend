@@ -47,7 +47,7 @@ class PostingView(View):
         try:
             posting = Posting.objects.get(id=posting_id, user_id=data['user'])
 
-            posting.image_url  = data['image_url']
+            posting.image_url = data['image_url']
             posting.save()
 
             return JsonResponse({"message": "SUCCESS"}, status=200)
@@ -237,7 +237,7 @@ class RecommentView(View):
 
     def get(self, request, posting_id, comment_id):
         try:
-            comment = Comment.objects.get(id=comment_id)
+            comment    = Comment.objects.get(id=comment_id)
             recomments = comment.recomment_set.all()
 
             results = []
