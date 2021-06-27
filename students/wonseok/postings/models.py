@@ -23,12 +23,13 @@ class PostLikeUser(models.Model):
         db_table = "posts_like_users"
 
 class Comment(models.Model):
-    user        = models.ForeignKey(User, on_delete=models.CASCADE)
-    post        = models.ForeignKey(Post, on_delete=models.CASCADE)
-    content     = models.TextField()
-    liked_user  = models.ManyToManyField(User,through="CommentLikeUser", related_name="liked_comment")
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    post            = models.ForeignKey(Post, on_delete=models.CASCADE)
+    nesting_comment = models.ForeignKey("Comment", on_delete=models.CASCADE, related_name="nested_comment", null=True)
+    content         = models.TextField()
+    liked_user      = models.ManyToManyField(User,through="CommentLikeUser", related_name="liked_comment")
+    created_at      = models.DateTimeField(auto_now_add=True)
+    updated_at      = models.DateTimeField(auto_now=True)
 
     class Meta():
         db_table = "comments"

@@ -1,4 +1,5 @@
 import json
+from django.db.models.query import NamedValuesListIterable
 
 from django.views import View
 from django.http.response import JsonResponse
@@ -132,11 +133,17 @@ class CreateCommentView(View):
             user    = User.objects.get(id=data["user_id"])
             post    = Post.objects.get(id=post_id)
             content = data["content"]
-            Comment.objects.create(user=user, post=post, content=content)
+            if "nest_id" in data:
+                nest    = Comment.objects.get(id=data["nest_id"])
+                Comment.objects.create(user=user, post=post, nesting_comment=nest, content=content)
+            else:
+                Comment.objects.create(user=user, post=post, content=content)
         except KeyError:
             return JsonResponse({"message":"KEY_ERROR"}, status=400)
         except JSONDecodeError:
             return JsonResponse({"message":"JSON_DECODE_ERROR"}, status=400)
+        except ValueError:
+            return JsonResponse({"message": "VALUE_ERROR"}, status=400)
         except Post.DoesNotExist:
             return JsonResponse({"message":"POST_NOT_EXIST"}, status=400)
         except User.DoesNotExist:
