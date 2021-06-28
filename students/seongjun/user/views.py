@@ -18,9 +18,8 @@ class SignUpView(View):
                 return JsonResponse({"message": "이메일 형식을 맞추어주세요"}, status=400)
             if not validate_password(data['password']):
                 return JsonResponse({'message': 'Password 8이상 작성해야합니다.'}, status=400)
-            if validate_phone_number(data['phone_number']) == False:
+            if not validate_phone_number(data['phone_number']):
                 return JsonResponse({'message': '잘못된 형식의 번호입니다.'}, status=400)
-            data['phone_number'] = validate_phone_number(data['phone_number'])
             if len(data['nick_name']) < 4 or len(data['nick_name']) > 12:
                 return JsonResponse({'message': '닉네임을 4자~8자까지 입력해주세요.'}, status=400)
 
