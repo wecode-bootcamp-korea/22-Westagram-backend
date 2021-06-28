@@ -15,10 +15,10 @@ def vaild_check(input_data) :
         value = list(kwargs.values())[0]
         pattern = EXPRESSION[key]
         pattern_test = re.compile(pattern).match(value)
-        print(key,value,pattern,pattern_test)
+        #print(key,value,pattern,pattern_test)
 
         if pattern_test == None :
-            raise ValidationError(key + "_ERROR")
+            raise ValidationError((key).upper + "_ERROR")
         
     for i in range(0,len(input_data)) :
         key = (list(input_data.keys())[i])
