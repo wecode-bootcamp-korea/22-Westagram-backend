@@ -1,10 +1,10 @@
 import json
 
 from django.core.exceptions import MultipleObjectsReturned
-from django.http     import JsonResponse
-from django.views    import View
+from django.http            import JsonResponse
+from django.views           import View
 
-from user.models     import User
+from user.models            import User
 
 class SigninView(View):
     def post(self, request):
