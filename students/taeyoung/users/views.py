@@ -13,7 +13,6 @@ class AccountView(View):
             phone_regexr    = re.compile(r'^\d{3}-\d{3,4}-\d{4}')
             password_regexr = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$')
 
-
             if Account.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message': '이미 존재하는 이메일입니다.'}, status=400)
             if Account.objects.filter(nickname=data['nickname']).exists():
@@ -26,7 +25,6 @@ class AccountView(View):
                 return JsonResponse({'message': '잘못된 형식의 이메일입니다.'}, status=400)
             if not password_regexr.match(data['password']): 
                 return JsonResponse({'message': '잘못된 형식의 비밀번호입니다.'}, status=400)
-
 
             Account.objects.create(
                 name          = data['name'],
