@@ -34,3 +34,21 @@ class SignUpView(View):
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
         except IntegrityError:
             return JsonResponse({"message": "IntegrityError"}, status=400)
+
+
+class LoginView(View):
+    def post(self, request):
+        data        = json.loads(request.body)
+        email       = data['email']
+        password    = data['password']
+
+        try:
+            if not validate_email(email):
+                return JsonResponse({"message": "이메일 형식을 맞추어주세요"}, status=400)
+            if not validate_password(password):
+                return JsonResponse({'message': 'Password 8이상 작성해야합니다.'}, status=400)
+            if not Account.objects.filter(email=email, password=password).exists():
+                return JsonResponse({"message": "INVALID_USER"}, status=401)
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
