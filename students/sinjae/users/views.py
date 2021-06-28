@@ -4,13 +4,9 @@ import re
 from django.db.models.fields.json import JSONExact
 from django.http                  import JsonResponse
 from django.views                 import View
-from django.db.utils              import DataError, IntegrityError
-from django.core.exceptions       import ValidationError
 
 from users.models                 import User
 from users.validation             import email_validation, password_validation, phone_validation
-
-
 
 class SignUp(View):
     def post(self, request):
