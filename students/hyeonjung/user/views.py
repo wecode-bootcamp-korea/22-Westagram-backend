@@ -3,6 +3,8 @@ import re
 
 from django.http     import JsonResponse
 from django.views    import View
+from django.db       import IntegrityError 
+from django.core.exceptions import MultipleObjectsReturned
 
 from .models import User
 
@@ -57,4 +59,10 @@ class SignInView(View):
 
         except User.DoesNotExist:
             return JsonResponse({"message" : "INVALID_USER"}, status = 401)
+        except IntegrityError:
+            return JsonResponse({"message" : "INTEGERITY_ERROR"}, status = 400)
+        except MultipleObjectsReturned:
+            return JsonResponse({"message" : "MULTIPLE_OBJECT_RETURNED"}, status = 400)
+            
+
 
