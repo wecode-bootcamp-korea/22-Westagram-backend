@@ -11,4 +11,4 @@ class expression() :
     def vaild_check(pattern_name,value) :
         pattern = EXPRESSION[pattern_name]
         pattern_test = re.compile(pattern).match(value)
-        return bool(pattern_test)
+        return pattern_test
