@@ -1,4 +1,4 @@
-import json 
+import json, bcrypt, jwt
 
 from django.core.validators  import validate_email
 from django.core.exceptions  import ValidationError
@@ -7,7 +7,9 @@ from django.db               import IntegrityError
 from django.views            import View 
 
 from users.models            import User
-from users.validations       import password_check
+from users.validations       import password_check, create_bcrypt, check_bcrypt, create_jwt
+from my_settings             import SECRET_KEY
+
 
 class SignupsView(View)  : 
     def post(self, request): 
@@ -22,10 +24,12 @@ class SignupsView(View)  :
             validate_email(email)
             if not password_check(password): 
                 return JsonResponse({"message":"INVALID_EMAIL_OR_PASSWORD"},status=400)
-            
+            hashed_password  = create_bcrypt(password)
+            decoded_password = hashed_password.decode()
+
             User.objects.create(
                 email        = email,
-                password     = password,
+                password     = decoded_password,
                 phone_number = phone_number,
                 name         = name
             )
@@ -40,18 +44,23 @@ class SignupsView(View)  :
             return JsonResponse({"message":"VALIDATION_ERROR"},status=400)
                 
 
-class SigninsView(View):
-    def post(self, request):
-        try : 
-            data = json.loads(request.body)
-            email = data['email']
+class SigninsView(View)  : 
+    def post(self, request): 
+        try                : 
+            data     = json.loads(request.body)
+            email    = data['email']
             password = data['password']
-            if not User.objects.filter(email=email).exists():
-                return JsonResponse({"message":"INVALID_USER"},status=401)
-            if not User.objects.filter(password=password).exists():
+            if not User.objects.filter(email=email).exists(): 
                 return JsonResponse({"message":"INVALID_USER"},status=401)
 
-            return JsonResponse({"message":"SUCCESS"},status= 200)
+            hashed_password = User.objects.get(email=email).password.encode('utf-8')
+            if not check_bcrypt(password, hashed_password): 
+                return JsonResponse({"message":"INVALID_USER"},status=401)
+
+            num          = User.objects.get(email=email).id
+            access_token = create_jwt(num)
+
+            return JsonResponse({"message":"SUCCESS", "access_token": access_token},status= 200)
 
         except KeyError: 
             return JsonResponse({"message":"KEY_ERROR"},status = 400)
