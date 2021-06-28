@@ -13,8 +13,8 @@ class SignupView(View):
         data = json.loads(request.body)
 
         try:
-            if not check_email_validation(data['email']) and \
-                    not check_password_validation(data['password']) and \
+            if not check_email_validation(data['email']) or \
+                    not check_password_validation(data['password']) or \
                     not check_phone_validation(data['phone']):
                         raise ValidationError("VALIDATION_ERROR")
 
