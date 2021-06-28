@@ -14,14 +14,19 @@ class SigninView(View):
 
         try:
             if "email" in data:
-                user = User.objects.get(email=data['email'], password=data['password'])
+                user = User.objects.get(email=data['email'])
             elif "phone" in data:
-                user = User.objects.get(phone=data['phone'], password=data['password'])
+                user = User.objects.get(phone=data['phone'])
             else:
-                return JsonResponse({"message": "KEY_ERROR"}, status=401)
+                raise KeyError
+
+            if user.password != data['password']:
+                return JsonResponse({"message": "INVALID_USER"}, status=401)
 
             return JsonResponse({"message": "SUCCESS"}, status=200)
 
         except User.DoesNotExist:
             return JsonResponse({"message": "INVALID_USER"}, status=401)
-
+        
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
