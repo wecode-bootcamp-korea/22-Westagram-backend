@@ -18,11 +18,11 @@ class SignUp(View):
             duplicate_user      = User.objects.filter(email=data["email"]).exists() or User.objects.filter(phone_number=data["phone_number"]).exists()
             
             if not email_validation(email):
-                raise JsonResponse({"message": "INAPPROPRIATE_EMAIL"}, status=400 )
+                return JsonResponse({"message": "INAPPROPRIATE_EMAIL"}, status=400 )
             if not password_validation(password):
-                raise JsonResponse({"message": "INAPPROPRIATE_PASSWORD"}, status=400 )
+                return JsonResponse({"message": "INAPPROPRIATE_PASSWORD"}, status=400 )
             if not phone_validation(phone_number):
-                raise JsonResponse({"message": "INAPPROPRIATE_PHONE_NUMBER"}, status=400 )
+                return JsonResponse({"message": "INAPPROPRIATE_PHONE_NUMBER"}, status=400 )
             if duplicate_user:
                 return JsonResponse({"message": "ALREADY_USER"}, status=400 )
 
