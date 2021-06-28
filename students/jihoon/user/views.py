@@ -1,7 +1,7 @@
 import json, re
 
 from django.views import View
-from django.http  import JsonResponse, request
+from django.http  import JsonResponse
 
 from user.models import Account
 
@@ -15,19 +15,19 @@ class SignUpView(View):
             EMAIL_REGEX         = "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
             PASSWORD_REGEX      = "^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$"
             
-            if re.search(NAME_REGEX, data['name'])                   == False:
+            if not re.search(NAME_REGEX, data['name']):
                 return JsonResponse({"MESSAGE": "2~4 글자의 한글을 입력해 주세요."}, status=400)
             
-            if re.search(NICKNAME_REGEX, data['nickname'])           == False:
+            if not re.search(NICKNAME_REGEX, data['nickname']):
                 return JsonResponse({"MESSAGE" : "숫자, 영어, 언더스코어만 사용할 수 있습니다."}, status=400)
 
-            if re.search(PHONE_NUMBER_REGEX, data['phone_number'])   == False:
+            if not re.search(PHONE_NUMBER_REGEX, data['phone_number']):
                 return JsonResponse({"MESSAGE":"필수 입력 사항입니다."}, status=400)
 
-            if re.search(EMAIL_REGEX, data['email'])                 == False:
+            if not re.search(EMAIL_REGEX, data['email']):
                 return JsonResponse({"MESSAGE": "EMAIL VALIDATION"}, status=400)
 
-            if re.search(PASSWORD_REGEX, data['password'])           == False:
+            if not re.search(PASSWORD_REGEX, data['password']):
                 return JsonResponse({"MESSAGE":"PASSWORD VALIDATION"}, status=400)
 
             if Account.objects.filter(email=data['email']).exists():
