@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.fields import EmailField
 
 class User(models.Model):
     name         = models.CharField(max_length=20)
@@ -6,6 +7,7 @@ class User(models.Model):
     email        = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=20, unique=True)
     nickname     = models.CharField(max_length=50, unique=True)
+    
     
     class Meta:
         db_table = 'users'
