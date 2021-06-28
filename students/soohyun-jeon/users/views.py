@@ -1,12 +1,11 @@
 import re
 import json
 
-from django.views import View
-from django.http import JsonResponse
+from django.views     import View
+from django.http      import JsonResponse
 
-from users.models import User
+from users.models     import User
 from users.validators import validate_email, validate_password
-
 
 class UserView(View):
     def post(self, request):
@@ -19,11 +18,11 @@ class UserView(View):
                 return JsonResponse({'MESSEAGE': 'INVALID_PASSWORD'}, status=400)
 
             User.objects.create(
-                phone_number=data['phone_number'],
-                email=data['email'],
-                name=data['name'],
-                nickname=data['nickname'],
-                password=data['password'],
+                phone_number = data['phone_number'],
+                email        = data['email'],
+                name         = data['name'],
+                nickname     = data['nickname'],
+                password     = data['password'],
             )
             return JsonResponse({'message': 'SUCCESS'}, status=201)
         except KeyError:
