@@ -15,7 +15,6 @@ class SignUpView(View):
             EMAIL_REGEX         = "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
             PASSWORD_REGEX      = "^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$"
             
-
             if re.search(NAME_REGEX, data['name'])                   == False:
                 return JsonResponse({"MESSAGE": "2~4 글자의 한글을 입력해 주세요."}, status=400)
             
