@@ -13,12 +13,12 @@ class SignupView(View):
         data = json.loads(request.body)
 
         try:
-            email    = check_email_validation(data['email'])
-            password = check_password_validation(data['password'])
-            phone    = check_phone_validation(data['phone'])
-            nickname = data['nickname']
+            if not check_email_validation(data['email']) and \
+                    not check_password_validation(data['password']) and \
+                    not check_phone_validation(data['phone']):
+                        raise ValidationError("VALIDATION_ERROR")
 
-            User.objects.create(email=email, password=password, phone=phone, nickname=nickname)
+            User.objects.create(email=data['email'], password=data['password'], phone=data['phone'], nickname=data['nickname'])
             return JsonResponse({"message": "SUCCESS"}, status=201)
 
         except KeyError:
