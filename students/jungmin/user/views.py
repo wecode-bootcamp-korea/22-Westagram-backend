@@ -3,7 +3,7 @@ import json
 from django.views           import View
 from django.http            import JsonResponse
 from django.db              import IntegrityError
-from django.core.exceptions import ValidationError
+from django.core.exceptions import MultipleObjectsReturned, ValidationError
 
 from user.models            import User
 from user.validators        import validate_email_regex, validate_password, validate_phone
@@ -53,3 +53,8 @@ class SignInView(View):
 
         except User.DoesNotExist:
             return JsonResponse({'message': 'INVALID_USER'}, status=401)
+        
+        except MultipleObjectsReturned:
+            return JsonResponse({'message': 'MultipleObjectsReturned'}, status=400)
+        
+
