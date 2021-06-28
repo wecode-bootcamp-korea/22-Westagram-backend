@@ -22,11 +22,10 @@ class SignupView(View):
             if not validate_password(password):
                 raise ValidationError(message="PASSWORD_VALIDATION_ERROR")
             encoded = password.encode()
-            salt    = bcrypt.gensalt()
-            hashed  = bcrypt.hashpw(encoded, salt)
+            hashed  = bcrypt.hashpw(encoded, bcrypt.gensalt())
             User.objects.create(
                 email        = data["email"],
-                password     = hashed,
+                password     = hashed.decode(),
                 nick_name    = data["nick_name"],
                 name         = data["name"],
                 phone_number = data["phone_number"],
@@ -39,7 +38,6 @@ class SignupView(View):
         except IntegrityError as error:
             return JsonResponse({"message": "INTEGRITY_ERROR","content":error.args[1] }, status=400)
         except DataError as error:
-            print(error)
             return JsonResponse({"message": "DATA_ERROR"}, status=400)
         except JSONDecodeError:
             return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
