@@ -39,7 +39,10 @@ class SignUp(View):
                 gender          = data["gender"],
                 birth_date      = data["birth_date"],
             )
+            
+            return JsonResponse({"message": "SUCCESS"}, status=201)
 
         except KeyError as e:
             return JsonResponse({"message": e}, status=400 )
             
+        
