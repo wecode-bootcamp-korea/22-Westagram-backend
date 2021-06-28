@@ -52,7 +52,10 @@ class SigninView(View):
             
             elif 'phone_number' in data:
                 User.objects.get(phone_number=data['phone_number'], password=data['password'])
-
+            
+            else:
+                return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+                
             return JsonResponse({'MESSAGE':'SUCCESS'}, status=200)
 
         except User.DoesNotExist:
