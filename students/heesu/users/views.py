@@ -52,3 +52,29 @@ class UserView(View) :
         return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
 
+class SigninView(View) :
+    def get(self,request) :
+        def encriptpassword(password) :
+            return hashlib.sha256(base64.b64encode(password.encode("ascii"))).hexdigest()
+
+        try :
+            user_data = json.loads(request.body)  
+            input_email = user_data['email']
+            input_password = encriptpassword(user_data['password'])
+
+            if not User.objects.filter(email=input_email).exists() :
+                return JsonResponse({'message':'INVALID_USER'}, status=401)
+
+            else :    
+                db_password = User.objects.get(email=input_email).password
+                
+                if input_password != db_password :
+                    return JsonResponse({'message':'INVALID_USER'}, status=401)
+
+        except KeyError :
+            return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+
+        except ValidationError as err:
+            return JsonResponse({'MESSAGE':err.message}, status=400)
+
+        return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
