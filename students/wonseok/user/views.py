@@ -1,4 +1,5 @@
 import json
+import bcrypt
 
 from django.http            import JsonResponse
 from django.views           import View
@@ -13,14 +14,19 @@ from user.validation import validate_email, validate_password
 class SignupView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
-            if not validate_email(data["email"]):
+            data     = json.loads(request.body)
+            email    = data["email"]
+            password = data["password"]
+            if not validate_email(email):
                 raise ValidationError(message="EMAIL_VALIDATION_ERROR")
-            if not validate_password(data["password"]):
+            if not validate_password(password):
                 raise ValidationError(message="PASSWORD_VALIDATION_ERROR")
+            encoded = password.encode()
+            salt    = bcrypt.gensalt()
+            hashed  = bcrypt.hashpw(encoded, salt)
             User.objects.create(
                 email        = data["email"],
-                password     = data["password"],
+                password     = hashed,
                 nick_name    = data["nick_name"],
                 name         = data["name"],
                 phone_number = data["phone_number"],
@@ -32,7 +38,8 @@ class SignupView(View):
             return JsonResponse({"message": error.args[0]}, status=400)
         except IntegrityError as error:
             return JsonResponse({"message": "INTEGRITY_ERROR","content":error.args[1] }, status=400)
-        except DataError:
+        except DataError as error:
+            print(error)
             return JsonResponse({"message": "DATA_ERROR"}, status=400)
         except JSONDecodeError:
             return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
