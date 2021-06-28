@@ -6,10 +6,10 @@ def validate_email(value):
 
 def validate_phone_number(value):
     phone_regex = re.compile(r'^01([0|1]?)-?([0-9]{3,4})-?([0-9]{4})$')
-    if not re.match(phone_regex, value):
-        return 0
-    value = re.sub("-", "", value)
-    return value
+    if bool(re.match(phone_regex, value)):
+        value = re.sub("-", "", value)
+        return value
+    return bool(re.match(phone_regex, value))
 
 def validate_password(value):
     password_regex = re.compile(r'^.{8,}$')
