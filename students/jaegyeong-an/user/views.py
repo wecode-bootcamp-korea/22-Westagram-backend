@@ -9,22 +9,26 @@ from user.models  import User
 
 class SignUpView(View):
     def post(self, request):
-        REGEX_MAIL = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+        REGEX = {
+            'email'    : '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
+            'password' : '[A-Za-z0-9@#$%^&+=]{8,}'
+        }
         try:
-            data = json.loads(request.body)
-            email = data['email']
+            data     = json.loads(request.body)
+            email    = data['email']
+            password = data['password']
 
-            if REGEX_MAIL.match(email) == None:
+            if not REGEX['email'].match(email):
                 return JsonResponse({'error':'INVALID_EMAIL'}, status=400)
-            if len(data['password']) < 8:
+            if not REGEX['password'].match(password):
                 return JsonResponse({'error':'INVALID_PASSWORD'}, status=400)
                 
             User.objects.create(
-            email        = data['email'],
+            email        = email,
             phone_number = data['phone_number'],
             name         = data['name'],
             nickname     = data['nickname'],
-            password     = data['password']
+            password     = password
             )
             return JsonResponse({'message':'SUCCESS'}, status=201)
 
