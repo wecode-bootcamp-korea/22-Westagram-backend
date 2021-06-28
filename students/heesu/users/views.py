@@ -13,7 +13,7 @@ class UserView(View) :
     def post(self,request) :
         def encriptpassword(password) :
             return hashlib.sha256(base64.b64encode(password.encode("ascii"))).hexdigest()
-
+            
         try :
             user_data = json.loads(request.body)  
             
