@@ -1,12 +1,13 @@
 import json
 
-from django.http import JsonResponse
-from django.views import View
+from django.http            import JsonResponse
+from django.views           import View
 from django.core.exceptions import ValidationError
-from django.db.utils import DataError, IntegrityError
+from django.db.utils        import DataError, IntegrityError
+
 from json.decoder import JSONDecodeError
 
-from user.models import User
+from user.models     import User
 from user.validation import validate_email, validate_password
 
 class SignupView(View):
@@ -24,6 +25,7 @@ class SignupView(View):
                 name         = data["name"],
                 phone_number = data["phone_number"],
             )
+            return JsonResponse({"message": "SUCCESS"}, status=201)
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
         except ValidationError as error:
@@ -34,7 +36,4 @@ class SignupView(View):
             return JsonResponse({"message": "DATA_ERROR"}, status=400)
         except JSONDecodeError:
             return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
-        except Exception:
-            return JsonResponse({"message": "UNCATCHED_ERROR"}, status=400)
-        return JsonResponse({"message": "SUCCESS"}, status=201)
 
