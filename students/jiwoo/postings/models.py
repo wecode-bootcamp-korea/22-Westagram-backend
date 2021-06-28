@@ -6,9 +6,9 @@ class Post(models.Model):
     user = models.ForeignKey('User',on_delete=models.CASCADE)
     title = models.CharField(max_length= 100)
     content = models.CharField(max_length = 1000)
-    image_url = models.URLField
-    created_at = 
-    updated_at = 
+    image_url = models.URLField(max_length = 200)
+    created_at = models.DateTimeField(auto_now = True)
+    updated_at = models.DateTimeField(auto_now_add = True)
 
     class Meta: 
         db_table = 'posts'
