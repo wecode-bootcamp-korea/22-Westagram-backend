@@ -4,21 +4,32 @@ import re
 from django.db.models.fields.json import JSONExact
 from django.http                  import JsonResponse
 from django.views                 import View
+from django.db.utils              import DataError, IntegrityError
+from django.core.exceptions       import ValidationError
 
 from users.models                 import User
-from users.validation             import *
+from users.validation             import email_validation, password_validation, phone_validation
+
 
 
 class SignUp(View):
     def post(self, request):
-        data = json.loads(request.body)
-        password            = data["password"]
-        email               = data["email"]
-        phone_number        = data["phone_number"]
-        users               = User.objects.all()
-        
-
         try:
+            data                = json.loads(request.body)
+            password            = data["password"]
+            email               = data["email"]
+            phone_number        = data["phone_number"]
+            duplicate_user      = User.objects.filter(email=data["email"]).exists() or User.objects.filter(phone_number=data["phone_number"]).exists()
+            
+            if not email_validation(email):
+                raise JsonResponse({"message": "INAPPROPRIATE_EMAIL"}, status=400 )
+            if not password_validation(password):
+                raise JsonResponse({"message": "INAPPROPRIATE_PASSWORD"}, status=400 )
+            if not phone_validation(phone_number):
+                raise JsonResponse({"message": "INAPPROPRIATE_PHONE_NUMBER"}, status=400 )
+            if duplicate_user:
+                return JsonResponse({"message": "ALREADY_USER"}, status=400 )
+
             User.objects.create(
                 nick_name       = data["nick_name"],
                 name            = data["name"],
@@ -29,46 +40,6 @@ class SignUp(View):
                 birth_date      = data["birth_date"],
             )
 
-        except:
-        # email or password 가 전달 되지 않았을 경우
-            if email is False or password is False:
-                return JsonResponse({"message": "KEY_ERROR"}, status=400 )
-        
-        # eamil validation
-            elif re.match('^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$', email) is None:
-                return JsonResponse({"message": "INAPPROPRIATE_EMAIL"}, status=400 )
-        
-        # password validation
-            elif re.match('[a-zA-Z0-9\!\@\#\$\?]{8,}', password) is None:            
-                return JsonResponse({"message": "INAPPROPRIATE_PASSWORD"}, status=400 )
-
-        # phone_number validation
-            elif re.match('[0-9]{10,12}', phone_number) is None:
-                return JsonResponse({"message": "INAPPROPRIATE_PHONE_NUMBER"}, status=400 )
+        except KeyError as e:
+            return JsonResponse({"message": e}, status=400 )
             
-        # 중복 가입
-            elif email in users_email_data or phone_number in users_password_data:
-                return JsonResponse({"message": "ALREADY_USER"}, status=400 )
-
-        else:
-
-
-            return JsonResponse({"MESSAGE": "SUCESS"}, status=201)
-
-class SignIn(View):
-    def post(self, request):
-        data          = json.loads(request.body)
-        email         = data["email"]
-        password      = data["password"]
-        users         = User.objects.all()
-        user_password = User.objects.get(email=email).password
-        email_data    = [user.email for user in users]
-
-        if email is False or password is False:
-            return JsonResponse({"message": "KEY_ERROR"}, status=400 )
-
-        elif email not in email_data or password != user_password:
-            return JsonResponse({"message": "INVALID_USER"}, status=401)
-
-        else:
-            return JsonResponse({"message": "SUCCESS"}, status=200)
