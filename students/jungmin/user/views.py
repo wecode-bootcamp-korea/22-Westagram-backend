@@ -19,7 +19,7 @@ class SignUpView(View):
 
             validate_phone(data['phone'])
 
-            user = User.objects.create(
+            User.objects.create(
                 email    = data['email'],
                 password = data['password'],
                 phone    = data['phone'],
