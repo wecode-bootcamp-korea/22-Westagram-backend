@@ -10,18 +10,16 @@ class SignInView(View):
         data         = json.loads(request.body)
         
         try:
-            if not (data['email'] and data['password']):
-                return JsonResponse({"message": "KEY_ERROR1"}, status=400)
-
+            email    = data['email']
+            password = data['password']
             if Account.objects.filter(email=data['email']).exists():
                 email = Account.objects.get(email=data['email'])
                 if email.password == data['password']:
-                    return JsonResponse({"message": "SUCCESS"}, status=200)
-                else: 
-                    return JsonResponse({"message": "INVALID_PASSWORD"}, status=401)
+                    return JsonResponse({"message": "SUCCESS"}, status=200) 
+                return JsonResponse({"message": "INVALID_PASSWORD"}, status=401)
             return JsonResponse({"message": "INVALID_USER"}, status=401)
         except KeyError:
-            return JsonResponse({"message": "KEY_ERROR2"}, status=400)
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
             
 class SignUpView(View):
     def post(self, request):
