@@ -1,4 +1,6 @@
 import json
+import base64
+import hashlib
 
 from django.views           import View
 from django.http            import JsonResponse
@@ -9,6 +11,8 @@ from . validation           import expression
    
 class UserView(View) :
     def post(self,request) :
+        def encriptpassword(password) :
+            return hashlib.sha256(base64.b64encode(password.encode("ascii"))).hexdigest()
 
         try :
             user_data = json.loads(request.body)  
@@ -35,7 +39,7 @@ class UserView(View) :
                 phone_number    = user_data['phone_number'],
                 email           = user_data['email'],
                 full_name       = user_data['full_name'],
-                password        = user_data['password'],
+                password        = encriptpassword(user_data['password']),
                 nick_name       = user_data['nick_name']
             )    
 
