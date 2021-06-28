@@ -12,8 +12,16 @@ class UserView(View) :
 
         try :
             user_data = json.loads(request.body)  
-            expression.vaild_check(user_data)                 
             
+            if not (expression.vaild_check("phone_number",user_data['phone_number'])) :
+                raise ValidationError("phone_number")
+
+            if not (expression.vaild_check("email",user_data['email'])) :
+                raise ValidationError("email")
+
+            if(len(user_data['password']) < 8) :
+                raise ValidationError("password")
+
             if  User.objects.filter(phone_number=user_data['phone_number']).exists() :
                 return JsonResponse({'MESSAGE':'DUPLE_ERROR'}, status=400)
 
