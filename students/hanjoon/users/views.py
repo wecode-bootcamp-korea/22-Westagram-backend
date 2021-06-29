@@ -1,8 +1,7 @@
-import json, re
+import json, re, bcrypt
 
 from django.http  import JsonResponse
 from django.views import View
-
 from users.models import User
 
 class SignupView(View):
@@ -45,8 +44,8 @@ class LoginView(View):
         try:
             if password == user.password:
                 return JsonResponse({"MESSAGE":"SUCCESS"}, status = 200)
-            else:
-                return JsonResponse({"MESSAGE":"INVALID_INFO"}, status = 400)
+            if password != user.password:
+                return JsonResponse({"MESSAGE":"INVALID_PASSWORD"}, status = 400)
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status = 401)
