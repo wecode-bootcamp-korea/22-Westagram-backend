@@ -9,10 +9,11 @@ from my_settings import SECRET_KEY, ALGORITHM
 class AccountView(View):
     def post(self, request):
         data            = json.loads(request.body)
-        bcrypt_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         email_regexr    = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
         phone_regexr    = re.compile(r'^\d{3}-?\d{3,4}-?\d{4}')
-        password_regexr = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$')
+        password_regexr = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$'
+        bcrypt_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+)
 
         try: 
             if Account.objects.filter(email=data['email']).exists():
@@ -42,18 +43,23 @@ class AccountView(View):
 
 class SignInView(View):
     def post(self, request):
+
         try:
-            data         = json.loads(request.body)
-            email   = data['email']
+            data     = json.loads(request.body)
+            email    = data['email']
             password = data['password'].encode('utf-8')
             
             if Account.objects.filter(email=email).exists():
-                db_email    = Account.objects.get(email=email)
-                db_password = db_email.password.encode('utf-8')
+                account     = Account.objects.get(email=email)
+                db_password = account.password.encode('utf-8')
+                
                 if bcrypt.checkpw(password, db_password):
                     token = jwt.encode({'user_id': db_email.id}, SECRET_KEY, ALGORITHM)
                     return JsonResponse({'token': token, 'message': 'SUCCESS'}, status=200)
+                
                 return JsonResponse({'message':'INVALID_PASSWORD'}, status=401)
+            
             return JsonResponse({'message':'INAVLID_USER'}, status=401)
+
         except KeyError:
              JsonResponse({'message': 'KEYERROR'}, status=400)
