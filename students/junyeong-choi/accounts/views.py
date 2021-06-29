@@ -5,6 +5,22 @@ from django.views   import View
 
 from .models        import Account
 
+class SignInView(View):
+    def post(self, request):
+        data         = json.loads(request.body)
+        
+        try:
+            email    = data['email']
+            password = data['password']
+            if Account.objects.filter(email=data['email']).exists():
+                email = Account.objects.get(email=data['email'])
+                if email.password == data['password']:
+                    return JsonResponse({"message": "SUCCESS"}, status=200) 
+                return JsonResponse({"message": "INVALID_PASSWORD"}, status=401)
+            return JsonResponse({"message": "INVALID_USER"}, status=401)
+        except KeyError:
+            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+            
 class SignUpView(View):
     def post(self, request):
         data                 = json.loads(request.body)
@@ -36,3 +52,4 @@ class SignUpView(View):
             return JsonResponse({"message":"SUCESS"}, status=201)
         except:
             return JsonResponse({"message":"KEY_ERROR"}, status=400)
+
