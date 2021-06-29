@@ -11,9 +11,8 @@ class AccountView(View):
         data            = json.loads(request.body)
         email_regexr    = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
         phone_regexr    = re.compile(r'^\d{3}-?\d{3,4}-?\d{4}')
-        password_regexr = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$'
+        password_regexr = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$')
         bcrypt_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-)
 
         try: 
             if Account.objects.filter(email=data['email']).exists():
@@ -54,7 +53,7 @@ class SignInView(View):
                 db_password = account.password.encode('utf-8')
                 
                 if bcrypt.checkpw(password, db_password):
-                    token = jwt.encode({'user_id': db_email.id}, SECRET_KEY, ALGORITHM)
+                    token = jwt.encode({'user_id': account.id}, SECRET_KEY, ALGORITHM)
                     return JsonResponse({'token': token, 'message': 'SUCCESS'}, status=200)
                 
                 return JsonResponse({'message':'INVALID_PASSWORD'}, status=401)
