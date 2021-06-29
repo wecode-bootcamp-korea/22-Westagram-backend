@@ -14,21 +14,28 @@ from user.validation import validate_email, validate_password
 class SignupView(View):
     def post(self, request):
         try:
-            data     = json.loads(request.body)
-            email    = data["email"]
-            password = data["password"]
+            data         = json.loads(request.body)
+            email        = data["email"]
+            password     = data["password"]
+            nick_name    = data["nick_name"]
+            name         = data["name"]
+            phone_number = data["phone_number"]
+
             if not validate_email(email):
                 raise ValidationError(message="EMAIL_VALIDATION_ERROR")
+            
             if not validate_password(password):
                 raise ValidationError(message="PASSWORD_VALIDATION_ERROR")
+            
             encoded = password.encode()
             hashed  = bcrypt.hashpw(encoded, bcrypt.gensalt())
+            decoded = hashed.decode()
             User.objects.create(
-                email        = data["email"],
-                password     = hashed.decode(),
-                nick_name    = data["nick_name"],
-                name         = data["name"],
-                phone_number = data["phone_number"],
+                email        = email,
+                password     = decoded,
+                nick_name    = nick_name,
+                name         = name,
+                phone_number = phone_number,
             )
             return JsonResponse({"message": "SUCCESS"}, status=201)
         except KeyError:
