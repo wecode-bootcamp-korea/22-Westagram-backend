@@ -3,6 +3,8 @@ import re
 
 from django.http     import JsonResponse
 from django.views    import View
+from django.db       import IntegrityError 
+from django.core.exceptions import MultipleObjectsReturned
 
 from .models import User
 
@@ -40,3 +42,29 @@ class SignUpView(View):
         
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"} , status = 400)
+
+class SignInView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            user =  User.objects.get(email=data['email'])
+            
+            if user.password != data['password']:
+                return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 401)
+                
+            return JsonResponse( {"message" : "SUCCESS"}, status= 200)    
+        
+        except KeyError:
+            return JsonResponse({"message" : "KEY_ERROR"} , status = 400)
+        
+        except User.DoesNotExist:
+            return JsonResponse({"message" : "INVALID_USER"}, status = 401)
+        
+        except IntegrityError:
+            return JsonResponse({"message" : "INTEGERITY_ERROR"}, status = 400)
+        
+        except MultipleObjectsReturned:
+            return JsonResponse({"message" : "MULTIPLE_OBJECT_RETURNED"}, status = 400)
+            
+
+
