@@ -1,3 +1,4 @@
+import bcrypt
 import json
 
 from django.http import JsonResponse
@@ -28,10 +29,13 @@ class SignupView(View):
             if User.objects.filter(phone=data['phone']).exists():
                return JsonResponse({'message': 'ALREADY_REGISTERED'}, status=409)
            
+            encoded_password = data['password'].encode('utf-8')
+            hashed_password = bcrypt.hashpw(encoded_password, bcrypt.gensalt())
+
             User.objects.create(
                 name     = data['name'],
                 email    = data['email'],
-                password = data['password'],
+                password = hashed_password.decode('utf-8'),
                 phone    = data['phone'],
                 nickname = data['nickname']
             )
@@ -47,8 +51,9 @@ class SigninView(View):
 
         try:
             email = User.objects.get(email = data['email'])
-            
-            if data['password'] == email.password:
+            encoded_password = data['password'].encode('utf-8')
+
+            if bcrypt.checkpw(encoded_password, email.password.encode('utf-8')):
                 return JsonResponse({'message': 'SUCCESS'}, status=201)
             else:
                 return JsonResponse({'message': 'INVALID_USER'}, status=401)
