@@ -11,6 +11,7 @@ from users.models                 import User
 from users.validation             import email_validation, password_validation, phone_validation
 from my_settings                  import SECRET_KEY
 
+
 class SignUp(View):
     def post(self, request):
         try:
@@ -40,7 +41,6 @@ class SignUp(View):
                 gender          = data["gender"],
                 birth_date      = data["birth_date"],
             )
-
             return JsonResponse({"message": "SUCCESS"}, status=201)
 
         except KeyError:
