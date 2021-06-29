@@ -1,5 +1,7 @@
 import json
 import bcrypt
+import jwt
+import datetime
 
 from django.http            import JsonResponse
 from django.views           import View
@@ -10,6 +12,7 @@ from json.decoder import JSONDecodeError
 
 from user.models     import User
 from user.validation import validate_email, validate_password
+import my_settings
 
 class SignupView(View):
     def post(self, request):
@@ -47,3 +50,35 @@ class SignupView(View):
         except JSONDecodeError:
             return JsonResponse({"message": "JSON_DECODE_ERROR"}, status=400)
 
+class LoginView(View):
+    def post(self,request):
+        try:
+            data     = json.loads(request.body)
+            email    = data["email"]
+            password = data["password"]
+
+            if not validate_email(email):
+                raise ValidationError(message="INVALID_EMAIL")
+            
+            if not validate_password(password):
+                raise ValidationError(message="INVALID_PASSWORD")
+            
+            user     = User.objects.get(email=email)
+            is_match = bcrypt.checkpw(password.encode(), user.password.encode())
+            
+            if not is_match:
+                raise ValidationError(message="INVALID_USER")
+            
+            current_time = datetime.datetime.now()
+            five_hours   = datetime.timedelta(hours=5)
+            exp          = current_time + five_hours
+            access_token = jwt.encode({"id":user.id, "exp":exp}, my_settings.SECRET_KEY, my_settings.ALGORITHM)
+            
+            return JsonResponse({"message":"success", "access_token":access_token}, status=200)
+        
+        except KeyError:
+            return JsonResponse({"message":"KEY_ERROR"}, status=400)
+        except ValidationError as error:
+            return JsonResponse({"message":error.message}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({"message":"USER_NOT_EXIST"}, status=400)
