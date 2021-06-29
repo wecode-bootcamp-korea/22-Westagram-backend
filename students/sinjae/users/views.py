@@ -1,5 +1,7 @@
 import json
 import re
+import bcrypt
+import jwt
 
 from django.db.models.fields.json import JSONExact
 from django.http                  import JsonResponse
@@ -7,7 +9,7 @@ from django.views                 import View
 
 from users.models                 import User
 from users.validation             import email_validation, password_validation, phone_validation
-
+from my_settings                  import SECRET_KEY
 
 class SignUp(View):
     def post(self, request):
@@ -17,6 +19,9 @@ class SignUp(View):
             email               = data["email"]
             phone_number        = data["phone_number"]
             duplicate_user      = User.objects.filter(email=data["email"]).exists() or User.objects.filter(phone_number=data["phone_number"]).exists()
+            hashed_password     = bcrypt.hashpw( password.encode('utf-8'), bcrypt.gensalt() )
+            decoded_password    = hashed_password.decode
+
 
             if not email_validation(email):
                 return JsonResponse({"message": "INAPPROPRIATE_EMAIL"}, status=400 )
@@ -30,7 +35,7 @@ class SignUp(View):
             User.objects.create(
                 nick_name       = data["nick_name"],
                 name            = data["name"],
-                password        = data["password"],
+                password        = decoded_password,
                 email           = data["email"],
                 phone_number    = data["phone_number"],
                 gender          = data["gender"],
@@ -48,10 +53,12 @@ class SignIn(View):
             data          = json.loads(request.body)
             email         = data["email"]
             password      = data["password"]
+            
             if User.objects.filter(email=email).exists() :
                 user = User.objects.get(email=email)
-                if password == user.password:
-                    return JsonResponse({"message": access_token}, status=200)
+                if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+                    access_token = jwt.encode({"user": user.id}, SECRET_KEY, algorithm = 'HS256')
+                    return JsonResponse({"token": access_token}, status=200)
 
             else:
                 return JsonResponse({"message": "INVALID_USER"}, status=401)
