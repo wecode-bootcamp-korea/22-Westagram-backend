@@ -1,4 +1,4 @@
-import json, re
+import json, re, bcrypt
 
 from django.http    import JsonResponse, HttpResponse
 from django.views   import View
@@ -29,7 +29,7 @@ class SignUpView(View):
                 
             Account.objects.create(
                 email           = data["email"],
-                password        = data["password"],
+                password        = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
                 nickname        = data["nickname"],
                 phone_number    = data["phone_number"]
             )
