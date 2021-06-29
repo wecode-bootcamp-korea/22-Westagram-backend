@@ -52,12 +52,7 @@ class SignInView(View):
             encoded_jwt = jwt.encode({'user': user.id}, my_settings.SECRET_KEY, my_settings.ALGORITHM)
 
             return JsonResponse(
-                    {
-                        'message': 'SUCCESS',
-                        'token'  : encoded_jwt
-                    }, 
-                    status=200
-                    )
+                    {'message': 'SUCCESS', 'token': encoded_jwt}, status=200)
 
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
