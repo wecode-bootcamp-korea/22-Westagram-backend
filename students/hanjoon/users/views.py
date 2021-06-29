@@ -44,7 +44,7 @@ class LoginView(View):
         user = User.objects.get(email=data["email"])
 
         try:
-            if email == user.email and password == user.password:
+            if password == user.password:
                 return JsonResponse({"MESSAGE":"SUCCESS"}, status = 200)
             else:
                 return JsonResponse({"MESSAGE":"INVALID_INFO"}, status = 400)
