@@ -1,5 +1,7 @@
 import json
 import re
+import bcrypt
+import jwt
 
 from django.http     import JsonResponse
 from django.views    import View
@@ -31,11 +33,13 @@ class SignUpView(View):
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({"message" : "email_exist"} , status = 400)
 
+            hashed_password =bcrypt.hashpw(data['password'].encode('utf-8'),bcrypt.gensalt()) 
+
             user = User.objects.create(
                 name         = data['name'], 
                 nickname     = data['nickname'],
                 email        = data['email'],
-                password     = data['password'],
+                password     = hashed_password.decode('utf-8'),
                 phone_number = data['phone_number'],
             )
             return JsonResponse( {"message": "SUCCESS"} , status = 201)
@@ -49,10 +53,9 @@ class SignInView(View):
             data = json.loads(request.body)
             user =  User.objects.get(email=data['email'])
             
-            if user.password != data['password']:
-                return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 401)
-                
-            return JsonResponse( {"message" : "SUCCESS"}, status= 200)    
+            if bcrypt.checkpw(data['password'].encode('utf-8'),user.password.encode('utf-8')):
+                token = jwt.encode({'id':user.id}, 'secret_key' , algorithm="HS256")
+                return JsonResponse( {"message": "SUCCESS", "token": token} , status = 201) 
         
         except KeyError:
             return JsonResponse({"message" : "KEY_ERROR"} , status = 400)
