@@ -65,8 +65,8 @@ class LoginView(View):
                 raise ValidationError(message="INVALID_USER")
             
             current_time = datetime.datetime.now()
-            five_hours = datetime.timedelta(hours=5)
-            exp = current_time + five_hours
+            five_hours   = datetime.timedelta(hours=5)
+            exp          = current_time + five_hours
             access_token = jwt.encode({"id":user.id, "exp":exp}, my_settings.SECRET_KEY, my_settings.ALGORITHM)
             
             return JsonResponse({"message":"success", "access_token":access_token}, status=200)
