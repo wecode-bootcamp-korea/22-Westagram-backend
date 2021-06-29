@@ -4,6 +4,7 @@ from django.views   import View
 from django.http    import JsonResponse
 
 from users.models   import Account
+from my_settings import SECRET_KEY, ALGORITHM
 
 class AccountView(View):
     def post(self, request):
@@ -41,16 +42,18 @@ class AccountView(View):
 
 class SignInView(View):
     def post(self, request):
-        data = json.loads(request.body)
-
         try:
-            email    = data['email']
-            password = data['password']
+            data         = json.loads(request.body)
+            email   = data['email']
+            password = data['password'].encode('utf-8')
+            
             if Account.objects.filter(email=email).exists():
-                user = Account.objects.get(email=email)
-                if user.password == password:
-                    return JsonResponse({'message': 'SUCCESS'}, status=200)
+                db_email    = Account.objects.get(email=email)
+                db_password = db_email.password.encode('utf-8')
+                if bcrypt.checkpw(password, db_password):
+                    token = jwt.encode({'user_id': db_email.id}, SECRET_KEY, ALGORITHM)
+                    return JsonResponse({'token': token, 'message': 'SUCCESS'}, status=200)
                 return JsonResponse({'message':'INVALID_PASSWORD'}, status=401)
             return JsonResponse({'message':'INAVLID_USER'}, status=401)
         except KeyError:
-            return JsonResponse({'message': 'KEYERROR'}, status=400)
+             JsonResponse({'message': 'KEYERROR'}, status=400)
