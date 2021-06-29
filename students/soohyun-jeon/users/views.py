@@ -1,11 +1,12 @@
 import re
 import json
 
-from django.views     import View
-from django.http      import JsonResponse
+from django.core.exceptions import MultipleObjectsReturned
+from django.views           import View
+from django.http            import JsonResponse
 
-from users.models     import User
-from users.validators import validate_email, validate_password
+from users.models           import User
+from users.validators       import validate_email, validate_password
 
 class UserView(View):
     def post(self, request):
@@ -18,14 +19,14 @@ class UserView(View):
                 return JsonResponse({'MESSEAGE': 'INVALID_PASSWORD'}, status=400)
 
             User.objects.create(
-                phone_number = data['phone_number'],
-                email        = data['email'],
-                name         = data['name'],
-                nickname     = data['nickname'],
-                password     = data['password'],
+                phone_number =data['phone_number'],
+                email        =data['email'],
+                name         =data['name'],
+                nickname     =data['nickname'],
+                password     =data['password'],
             )
             return JsonResponse({'message': 'SUCCESS'}, status=201)
-        
+
         except KeyError:
             return JsonResponse({'message': 'KeyError'}, status=404)
 
@@ -33,13 +34,14 @@ class SigninView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
-            if 'email' in data:
-                user = User.objects.get(email = data['email'], password=data['password'])
-                if user:
-                    return JsonResponse({'message': 'SUCCESS'}, status=200)
+            User.objects.get(email=data['email'], password=data['password'])
+            return JsonResponse({'message': 'SUCCESS'}, status=200)
 
-            else:
-                return JsonResponse({'messege': 'KeyError'}, status=400)
+        except KeyError:
+            return JsonResponse({'messege': 'KeyError'}, status=400)
 
         except User.DoesNotExist:
+            return JsonResponse({'message': 'Invalid_User'}, status=401)
+
+        except MultipleObjectsReturned:
             return JsonResponse({'message': 'Invalid_User'}, status=401)
