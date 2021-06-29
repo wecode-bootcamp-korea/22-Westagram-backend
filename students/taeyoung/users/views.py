@@ -1,4 +1,4 @@
-import json, re
+import json, re, bcrypt, jwt
 
 from django.views   import View
 from django.http    import JsonResponse
@@ -7,12 +7,13 @@ from users.models   import Account
 
 class AccountView(View):
     def post(self, request):
-        try:
-            data            = json.loads(request.body)
-            email_regexr    = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-            phone_regexr    = re.compile(r'^\d{3}-\d{3,4}-\d{4}')
-            password_regexr = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$')
+        data            = json.loads(request.body)
+        bcrypt_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        email_regexr    = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+        phone_regexr    = re.compile(r'^\d{3}-?\d{3,4}-?\d{4}')
+        password_regexr = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$')
 
+        try: 
             if Account.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message': '이미 존재하는 이메일입니다.'}, status=400)
             if Account.objects.filter(nickname=data['nickname']).exists():
@@ -27,13 +28,13 @@ class AccountView(View):
                 return JsonResponse({'message': '잘못된 형식의 비밀번호입니다.'}, status=400)
 
             Account.objects.create(
-                name          = data['name'],
-                email         = data['email'],
-                password      = data['password'],
-                nickname      = data['nickname'],
-                phone_number  = data['phone_number']
-            )
-        
+                    name          = data['name'],
+                    email         = data['email'],
+                    password      = bcrypt_password,
+                    nickname      = data['nickname'],
+                    phone_number  = data['phone_number']
+                    )
+
             return JsonResponse({'message': 'SUCCESS'}, status=201)
         except KeyError:
             return JsonResponse({'meesage': 'KEY_ERROR'}, status=400)
