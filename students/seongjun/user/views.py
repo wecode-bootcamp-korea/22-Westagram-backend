@@ -1,5 +1,6 @@
 import json
 import bcrypt
+import jwt
 
 from django.db import IntegrityError
 from django.http import JsonResponse
@@ -7,6 +8,7 @@ from django.views import View
 
 from user.models import Account
 from user.validators import validate_email, validate_password, validate_phone_number
+from my_settings import SECRET_KEY
 
 
 # Create your views here.
@@ -27,10 +29,10 @@ class SignUpView(View):
 
             hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
             Account.objects.create(
-                email       = data['email'],
-                password    = hashed_password.decode('utf-8'),
-                nick_name   = data['nick_name'],
-                phone_number= data['phone_number']
+                email=data['email'],
+                password=hashed_password.decode('utf-8'),
+                nick_name=data['nick_name'],
+                phone_number=data['phone_number']
             )
             return JsonResponse({'message': 'SUCCESS'}, status=201)
         except KeyError:
@@ -41,17 +43,19 @@ class SignUpView(View):
 
 class LoginView(View):
     def post(self, request):
-        data        = json.loads(request.body)
-        email       = data['email']
-        password    = data['password']
+        data = json.loads(request.body)
+        email = data['email']
+        password = data['password']
+        user = Account.objects.get(email=email)
 
         try:
             if not validate_email(email):
                 return JsonResponse({"message": "이메일 형식을 맞추어주세요"}, status=400)
             if not validate_password(password):
                 return JsonResponse({'message': 'Password 8이상 작성해야합니다.'}, status=400)
-            if not Account.objects.filter(email=email, password=password).exists():
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')) and Account.objects.filter(email=email).exists():
                 return JsonResponse({"message": "INVALID_USER"}, status=401)
-            return JsonResponse({"message": "SUCCESS"}, status=201)
+            encoded_jwt = jwt.encode({'user': user.id}, SECRET_KEY, algorithm='HS256')
+            return JsonResponse({"message": encoded_jwt}, status=201)
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
