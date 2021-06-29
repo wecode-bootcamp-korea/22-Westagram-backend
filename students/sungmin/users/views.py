@@ -1,4 +1,5 @@
 import json, re
+from django import views
 
 from django.views   import View
 from django.http    import JsonResponse
@@ -36,3 +37,20 @@ class SignUpView(View):
             return JsonResponse({"message": "SUCCESS!"}, status=200)
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+class SignInView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        try:
+            email    = data['email']
+            password = data['password']
+
+            if User.objects.get(email = email).password == password:
+                return JsonResponse({'message': 'SUCCESS!'}, status=200)
+            return JsonResponse({'error': 'INVALID_USER'}, status=401)
+
+        except KeyError:
+            return JsonResponse({'error': 'KEY_ERROR'}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'INVALID_USER'}, status=401)                    
