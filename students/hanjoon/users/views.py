@@ -9,8 +9,6 @@ class SignupView(View):
     def post(self, request):
         data = json.loads(request.body)
 
-        hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode()
-
         EMAIL_REGES        = "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         PASSWORD_REGES     = '[A-Za-z0-9@#$%^&+=]{8,}'
         PHONE_NUMBER_REGES = '^[0-9]{3}[-]+[0-9]{3,4}[-]+[0-9]{4}$|^[0-9]{10,11}$'
@@ -23,6 +21,8 @@ class SignupView(View):
 
         if not re.search(PHONE_NUMBER_REGES, data["phone_number"]):
             return JsonResponse({"MESSAGE":"필수 입력 사항"}, status = 400)
+
+        hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode()
 
         try:
             User.objects.create(
