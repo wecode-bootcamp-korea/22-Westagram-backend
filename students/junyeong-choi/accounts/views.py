@@ -1,9 +1,10 @@
 import json, re, bcrypt
 
-from django.http    import JsonResponse, HttpResponse
-from django.views   import View
+from django.http            import JsonResponse, HttpResponse
+from django.views           import View
 
-from .models        import Account
+from .models                import Account
+from .utils                 import encoded_jwt
 
 class SignInView(View):
     def post(self, request):
@@ -11,16 +12,17 @@ class SignInView(View):
         
         try:
             email    = data['email']
-            password = data['password']
-            if Account.objects.filter(email=data['email']).exists():
-                email = Account.objects.get(email=data['email'])
-                if email.password == data['password']:
-                    return JsonResponse({"message": "SUCCESS"}, status=200) 
+            password = data['password'].encode('utf-8')
+            if Account.objects.filter(email=email).exists():
+                account_email    = Account.objects.get(email=email)
+                account_password = account_email.password.encode('utf-8')
+                if bcrypt.checkpw(password, account_password):
+                    return JsonResponse({"message": "SUCCESS", "token":encoded_jwt(account_email.id)}, status=200) 
                 return JsonResponse({"message": "INVALID_PASSWORD"}, status=401)
             return JsonResponse({"message": "INVALID_USER"}, status=401)
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
-            
+
 class SignUpView(View):
     def post(self, request):
         data                 = json.loads(request.body)
