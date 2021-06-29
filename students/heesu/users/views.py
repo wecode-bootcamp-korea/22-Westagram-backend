@@ -10,8 +10,7 @@ from . validation           import expression
    
 class UserView(View) :
     def post(self,request) :
- 
-            
+             
         try :
             user_data = json.loads(request.body)  
             user_password = user_data['password']
@@ -64,7 +63,7 @@ class SigninView(View) :
 
             hashed_password = User.objects.get(email=input_email).password
                 
-            if (bcrypt.checkpw(password.encode('utf-8'),hashed_password.encode('utf-8')) == False) :
+            if not (bcrypt.checkpw(password.encode('utf-8'),hashed_password.encode('utf-8'))) :
                 return JsonResponse({'message':'INVALID_USER'}, status=401)
 
         except KeyError :
