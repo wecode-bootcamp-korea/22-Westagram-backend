@@ -1,4 +1,5 @@
 import json
+import jwt
 import bcrypt
 
 from django.views           import View
@@ -7,7 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist,ValidationError
 
 from . models               import User
 from . validation           import expression
-   
+from   my_settings          import SECRET_KEY as secret
+
 class UserView(View) :
     def post(self,request) :
              
@@ -72,4 +74,7 @@ class SigninView(View) :
         except ValidationError as err:
             return JsonResponse({'MESSAGE':err.message}, status=400)
 
-        return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
+        table_id = User.objects.get(email=input_email).id
+        access_token = jwt.encode({'id':table_id},secret,algorithm='HS256')
+    
+        return JsonResponse({'MESSAGE':{'SUCCESS': {'access_token:':access_token}}}, status=201)
