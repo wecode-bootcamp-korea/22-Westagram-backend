@@ -7,7 +7,7 @@ from django.core.exceptions import MultipleObjectsReturned, ValidationError
 
 from user.models            import User
 from user.validators        import validate_email_regex, validate_password, validate_phone
-from project_westagram import my_settings
+from project_westagram      import my_settings
 
 class SignUpView(View):
     def post(self, request):
@@ -51,8 +51,8 @@ class SignInView(View):
 
             return JsonResponse(
                     {
-                    'message': 'SUCCESS',
-                    'token': encoded_jwt
+                        'message': 'SUCCESS',
+                        'token'  : encoded_jwt
                     }, 
                     status=200
                     )
