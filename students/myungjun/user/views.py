@@ -6,7 +6,7 @@ from django.views import View
 from .models import User
 from .validation import *
 
-class UserView(View):
+class SignupView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
