@@ -1,6 +1,5 @@
 import json
-import base64
-import hashlib
+import bcrypt
 
 from django.views           import View
 from django.http            import JsonResponse
@@ -12,7 +11,7 @@ from . validation           import expression
 class UserView(View) :
     def post(self,request) :
         def encriptpassword(password) :
-            return hashlib.sha256(base64.b64encode(password.encode("ascii"))).hexdigest()
+            return bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt())
             
         try :
             user_data = json.loads(request.body)  
@@ -39,37 +38,35 @@ class UserView(View) :
                 phone_number    = user_data['phone_number'],
                 email           = user_data['email'],
                 full_name       = user_data['full_name'],
-                password        = encriptpassword(user_data['password']),
+                password        = (encriptpassword(user_data['password'])).decode('utf-8'),
                 nick_name       = user_data['nick_name']
-            )    
-
+            )
+                
         except KeyError :
             return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
 
         except ValidationError as err:
             return JsonResponse({'MESSAGE':err.message}, status=400)
-        
+
+        return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
         return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
 
 class SigninView(View) :
     def get(self,request) :
-        def encriptpassword(password) :
-            return hashlib.sha256(base64.b64encode(password.encode("ascii"))).hexdigest()
 
         try :
-            user_data = json.loads(request.body)  
-            input_email = user_data['email']
-            input_password = encriptpassword(user_data['password'])
+            user_data       = json.loads(request.body)  
+            input_email     = user_data['email']
+            password        = user_data['password']
 
             if not User.objects.filter(email=input_email).exists() :
                 return JsonResponse({'message':'INVALID_USER'}, status=401)
 
-            else :    
-                db_password = User.objects.get(email=input_email).password
+            hashed_password = User.objects.get(email=input_email).password
                 
-                if input_password != db_password :
-                    return JsonResponse({'message':'INVALID_USER'}, status=401)
+            if (bcrypt.checkpw(password.encode('utf-8'),hashed_password.encode('utf-8')) == False) :
+                return JsonResponse({'message':'INVALID_USER'}, status=401)
 
         except KeyError :
             return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
