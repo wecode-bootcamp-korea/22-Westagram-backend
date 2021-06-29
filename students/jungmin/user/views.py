@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import json, jwt, bcrypt
-=======
-import json, bcrypt
->>>>>>> main
 
 from django.views           import View
 from django.http            import JsonResponse
