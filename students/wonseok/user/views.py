@@ -12,6 +12,7 @@ from json.decoder import JSONDecodeError
 
 from user.models     import User
 from user.validation import validate_email, validate_password
+import my_settings
 
 class SignupView(View):
     def post(self, request):
