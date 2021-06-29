@@ -3,7 +3,7 @@ import json, re
 from django.views   import View
 from django.http    import JsonResponse
 
-from .models        import Account
+from users.models   import Account
 
 class AccountView(View):
     def post(self, request):
@@ -37,3 +37,19 @@ class AccountView(View):
             return JsonResponse({'message': 'SUCCESS'}, status=201)
         except KeyError:
             return JsonResponse({'meesage': 'KEY_ERROR'}, status=400)
+
+class SignInView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        try:
+            email    = data['email']
+            password = data['password']
+            if Account.objects.filter(email=email).exists():
+                user = Account.objects.get(email=email)
+                if user.password == password:
+                    return JsonResponse({'message': 'SUCCESS'}, status=200)
+                return JsonResponse({'message':'INVALID_PASSWORD'}, status=401)
+            return JsonResponse({'message':'INAVLID_USER'}, status=401)
+        except KeyError:
+            return JsonResponse({'message': 'KEYERROR'}, status=400)
