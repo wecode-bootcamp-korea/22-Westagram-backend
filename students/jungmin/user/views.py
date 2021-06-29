@@ -1,4 +1,4 @@
-import json, bcrypt
+import json, jwt, bcrypt
 
 from django.views           import View
 from django.http            import JsonResponse
@@ -7,6 +7,7 @@ from django.core.exceptions import MultipleObjectsReturned, ValidationError
 
 from user.models            import User
 from user.validators        import validate_email_regex, validate_password, validate_phone
+from project_westagram      import my_settings
 
 class SignUpView(View):
     def post(self, request):
@@ -45,10 +46,12 @@ class SignInView(View):
         try:
             user = User.objects.get(email=data['email'])
 
-            if user.password != data['password']:
+            if not bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({'message': 'INVALID_USER'}, status=401)
 
-            return JsonResponse({'message': 'SUCCESS'}, status=200)
+            encoded_jwt = jwt.encode({'user': user.id}, my_settings.SECRET_KEY, my_settings.ALGORITHM)
+
+            return JsonResponse({'message': 'SUCCESS', 'token': encoded_jwt}, status=200)
 
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
