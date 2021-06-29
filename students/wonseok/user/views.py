@@ -27,12 +27,10 @@ class SignupView(View):
             if not validate_password(password):
                 raise ValidationError(message="PASSWORD_VALIDATION_ERROR")
             
-            encoded = password.encode()
-            hashed  = bcrypt.hashpw(encoded, bcrypt.gensalt())
-            decoded = hashed.decode()
+            hashed  = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
             User.objects.create(
                 email        = email,
-                password     = decoded,
+                password     = hashed.decode(),
                 nick_name    = nick_name,
                 name         = name,
                 phone_number = phone_number,
