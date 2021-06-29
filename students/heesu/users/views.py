@@ -10,19 +10,19 @@ from . validation           import expression
    
 class UserView(View) :
     def post(self,request) :
-        def encriptpassword(password) :
-            return bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt())
+ 
             
         try :
             user_data = json.loads(request.body)  
-            
+            user_password = user_data['password']
+
             if not (expression.vaild_check("phone_number",user_data['phone_number'])) :
                 raise ValidationError("phone_number")
 
             if not (expression.vaild_check("email",user_data['email'])) :
                 raise ValidationError("email")
 
-            if(len(user_data['password']) < 8) :
+            if(len(user_password) < 8) :
                 raise ValidationError("password")
 
             if  User.objects.filter(phone_number=user_data['phone_number']).exists() :
@@ -38,7 +38,7 @@ class UserView(View) :
                 phone_number    = user_data['phone_number'],
                 email           = user_data['email'],
                 full_name       = user_data['full_name'],
-                password        = (encriptpassword(user_data['password'])).decode('utf-8'),
+                password        = bcrypt.hashpw(user_password.encode('utf-8'),bcrypt.gensalt()).decode('utf-8'),
                 nick_name       = user_data['nick_name']
             )
                 
@@ -48,7 +48,6 @@ class UserView(View) :
         except ValidationError as err:
             return JsonResponse({'MESSAGE':err.message}, status=400)
 
-        return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
         return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
 
