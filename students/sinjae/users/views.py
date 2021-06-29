@@ -6,6 +6,7 @@ from django.http                  import JsonResponse
 from django.views                 import View
 
 from users.models                 import User
+from users.validation             import email_validation, password_validation, phone_validation
 
 
 class SignUp(View):
@@ -50,8 +51,7 @@ class SignIn(View):
             if User.objects.filter(email=email).exists() :
                 user = User.objects.get(email=email)
                 if password == user.password:
-                    access_token = jwt.encode({"user": user.id}, SECRET_KEY, algorithm = 'HS256')
-                    return JsonResponse({"token": access_token}, status=200)
+                    return JsonResponse({"message": access_token}, status=200)
 
             else:
                 return JsonResponse({"message": "INVALID_USER"}, status=401)
