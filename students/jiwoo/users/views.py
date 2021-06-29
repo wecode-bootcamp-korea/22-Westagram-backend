@@ -52,15 +52,16 @@ class SigninsView(View)  :
             data     = json.loads(request.body)
             email    = data['email']
             password = data['password']
+            user     = User.objects.get(email=email)
 
             if not User.objects.filter(email=email).exists(): 
                 return JsonResponse({"message":"INVALID_USER"},status=401)
 
-            hashed_password = User.objects.get(email=email).password.encode('utf-8')
+            hashed_password = user.password.encode('utf-8')
             if not check_bcrypt(password, hashed_password): 
                 return JsonResponse({"message":"INVALID_USER"},status=401)
 
-            num          = User.objects.get(email=email).id
+            num          = user.id
             access_token = create_jwt(num)
             
             return JsonResponse({"message":"SUCCESS", "access_token": access_token},status= 200)
