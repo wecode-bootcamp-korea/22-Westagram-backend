@@ -28,12 +28,9 @@ class SignUpView(View):
             
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({"message":"email_exist"}, status=400)
-
-            
-            
+ 
             hashed_password     = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-            
-           
+                       
             User.objects.create(
                 email        = data['email'],
                 password     = hashed_password.decode('utf-8'),
@@ -57,7 +54,6 @@ class SignInView(View):
             access_token = jwt.encode({"user_id": user.id},SECRET_KEY, algorithm='HS256')
 
             return JsonResponse({"message": "SUCCESS", "access_token": access_token}, status=200)
-
 
         except KeyError:
             return JsonResponse({'error': 'KEY_ERROR'}, status=400)
