@@ -1,17 +1,15 @@
-import json 
+import json, bcrypt, jwt
 
-from django.core.validators  import validate_email
-from django.core.exceptions  import ValidationError
 from django.http             import JsonResponse
-from django.db               import IntegrityError
 from django.views            import View 
 
 from users.models            import User
-from users.validations       import password_check, email_check
+from users.validations       import email_check, password_check, create_bcrypt, check_bcrypt, create_jwt
+from my_settings             import SECRET_KEY
+
 
 class SignupsView(View)  : 
-    def post(self, request): 
-        
+    def post(self, request):         
         try: 
             data         = json.loads(request.body)
             email        = data['email']
@@ -19,35 +17,53 @@ class SignupsView(View)  :
             phone_number = data['phone_number']
             name         = data['name']
 
-            if not email_check(email):
+            if not email_check(email): 
                 return JsonResponse({"message":"INVALID_EMAIL_OR_PASSWORD"},status=400)
 
             if not password_check(password): 
                 return JsonResponse({"message":"INVALID_EMAIL_OR_PASSWORD"},status=400)
 
             if User.objects.filter(email=email).exists(): 
-                return JsonResponse({"message":"EMAIL_ALREADY_EXISTS"},status=400)
-            
+                return JsonResponse({"message":"EMAIL_ALREADY_EXISTS"},status=400)     
+
             if User.objects.filter(phone_number=phone_number).exists(): 
                 return JsonResponse({"message":"PHONE_NUMBER_ALREADY_EXISTS"},status=400)
 
             if User.objects.filter(name=name).exists(): 
                 return JsonResponse({"message":"NAME_ALREADY_EXISTS"},status=400)
-            
+
+            hashed_password  = create_bcrypt(password)
+            decoded_password = hashed_password.decode()
+
             User.objects.create(
                 email        = email,
-                password     = password,
+                password     = decoded_password,
                 phone_number = phone_number,
                 name         = name
             )
-            return JsonResponse({"message":"SUCCESS"},status = 201)
-        
-
+            return JsonResponse({"message":"SUCCESS"},status = 201)      
         except KeyError: 
             return JsonResponse({"MESSAGE":"KEY_ERROR"},status=400)
-        except ValidationError: 
-            return JsonResponse({"message":"VALIDATION_ERROR"},status=400)
-                
 
 
+class SigninsView(View)  : 
+    def post(self, request): 
+        try: 
+            data     = json.loads(request.body)
+            email    = data['email']
+            password = data['password']
+            user     = User.objects.get(email=email)
 
+            if not User.objects.filter(email=email).exists(): 
+                return JsonResponse({"message":"INVALID_USER"},status=401)
+
+            hashed_password = user.password.encode('utf-8')
+            if not check_bcrypt(password, hashed_password): 
+                return JsonResponse({"message":"INVALID_USER"},status=401)
+
+            user_id          = user.id
+            access_token = create_jwt(user_id)
+            
+            return JsonResponse({"message":"SUCCESS", "access_token": access_token},status= 200)
+        except KeyError: 
+            return JsonResponse({"message":"KEY_ERROR"},status = 400)
