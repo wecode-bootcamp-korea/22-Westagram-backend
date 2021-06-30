@@ -44,7 +44,7 @@ class SignupView(View):
             
             email = User.objects.get(email=data['email'])
             SECRET = SECRET_KEY
-            token = jwt.encode({'id': email.id}, SECRET, algorithm='HS256')
+            token = jwt.encode({'id': email.id}, SECRET_KEY, algorithm='HS256')
             return JsonResponse({'message': 'SUCCESS', 'token': token}, status=201)    
         
         except KeyError:
@@ -60,7 +60,7 @@ class SigninView(View):
             encoded_password = data['password'].encode('utf-8')
 
             SECRET = SECRET_KEY
-            token = jwt.encode({'id': email.id}, SECRET, algorithm='HS256')
+            token = jwt.encode({'id': email.id}, SECRET_KEY, algorithm='HS256')
 
             if bcrypt.checkpw(encoded_password, email.password.encode('utf-8')):
                 return JsonResponse({'message': 'SUCCESS', 'token': token}, status=201)
