@@ -20,7 +20,7 @@ def check_bcrypt(password, hashed_password):
     return bcrypt.checkpw(password.encode('utf-8'),hashed_password)
 
 
-def create_jwt(num): 
+def create_jwt(user_id): 
     SECRET       = SECRET_KEY
-    access_token = jwt.encode({'id' : num}, SECRET, algorithm = 'HS256')
+    access_token = jwt.encode({'id' : user_id}, SECRET, algorithm = 'HS256')
     return access_token 

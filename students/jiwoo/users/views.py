@@ -61,8 +61,8 @@ class SigninsView(View)  :
             if not check_bcrypt(password, hashed_password): 
                 return JsonResponse({"message":"INVALID_USER"},status=401)
 
-            num          = user.id
-            access_token = create_jwt(num)
+            user_id          = user.id
+            access_token = create_jwt(user_id)
             
             return JsonResponse({"message":"SUCCESS", "access_token": access_token},status= 200)
         except KeyError: 
