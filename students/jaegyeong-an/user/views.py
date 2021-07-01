@@ -33,7 +33,7 @@ class SignUpView(View):
             )
 
             user_id = User.objects.get(email=email).id
-            return JsonResponse({'message':'SUCCESS', 'token':encode_jwt(user_id)}, status=201)
+            return JsonResponse({'message':'SUCCESS', 'token':encode_jwt(user_id)}, status=201) 
         except KeyError:
             return JsonResponse({'error':'KEY_ERROR'}, status=400)
         except IntegrityError:
@@ -49,10 +49,10 @@ class SignInView(View):
             user_pw  = User.objects.get(email=email).password.encode('utf-8')
 
             if bcrypt.checkpw(password, user_pw):
-                return JsonResponse({'message':'SUCCESS', 'token':encode_jwt(user_id)}, status=200)
-            return JsonResponse({'error': 'INVALID_USER'}, status=401)
+                return JsonResponse({'message':'SUCCESS', 'token':encode_jwt(user_id)}, status=200) # 성공
+            return JsonResponse({'error': 'INVALID_USER'}, status=401) # 비밀번호 일치 안할떄 
 
         except KeyError:
-            return JsonResponse({'error': 'KEY_ERROR'}, status=400)
+            return JsonResponse({'error': 'KEY_ERROR'}, status=400) # 이메일이나 비밀번호 입력 안했을 떄 
         except User.DoesNotExist:
-            return JsonResponse({'error': 'INVALID_USER'}, status=401)
+            return JsonResponse({'error': 'INVALID_USER'}, status=401) #이메일이 없는 이메일 때 
