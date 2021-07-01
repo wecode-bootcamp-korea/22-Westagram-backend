@@ -14,12 +14,14 @@ class PostingView(View):
             image_url = data['image_url'],
             text = data['text']
         )
-
         return JsonResponse({'message': 'SUCCESS'}, status=201)
 
     def get(self, request):
         postings = Posting.objects.all()
         results = []
+
+
+        
         for posting in postings:
             results.append(
                 {
@@ -30,8 +32,12 @@ class PostingView(View):
                     'text': posting.text
                 }
             )
-
         return JsonResponse({'results': results}, status=200)
+
+    def delete(self, request, post_id):
+        Posting.objects.filter(id=post_id).delete()
+
+        return JsonResponse({'message': 'DELETED'})
 
 class CommentView(View):
     def post(self, request):
@@ -62,6 +68,11 @@ class CommentView(View):
                 }
             )
         return JsonResponse({'results': results}, status=200)
+
+    def delete(self, request, comment_id):
+        Comment.objects.filter(id=comment_id).delete()
+
+        return JsonResponse({'message': 'DELETED'})
         
 class LikeView(View):
     def post(self, request):
