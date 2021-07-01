@@ -4,7 +4,7 @@ from django.http.response import JsonResponse
 from django.views import View
 
 from user.models import User
-from postings.models import Posting, Comment
+from postings.models import Posting, Comment, Like
 
 class PostingView(View):
     def post(self, request):
@@ -31,7 +31,7 @@ class PostingView(View):
                 }
             )
 
-            return JsonResponse({'results': results}, status=200)
+        return JsonResponse({'results': results}, status=200)
 
 class CommentView(View):
     def post(self, request):
@@ -47,12 +47,43 @@ class CommentView(View):
 
     def get(self, request):
         comments = Comment.objects.all()
+        posts = Posting.objects.all()
         results = []
-        for comment in comments:
+        for post in posts:
+            comments = Comment.objects.filter(post=post.id)
             results.append(
                 {
-                    'post': comment.post.id,
-                    'user': comment.user.id,
-                    'text': comment.text
+                    'post': post.id,
+                    'user': post.user.id,
+                    'comments': [
+                        {'user': comment.user.id, 'text': comment.text} 
+                        for comment in comments
+                    ]
                 }
             )
+        return JsonResponse({'results': results}, status=200)
+        
+class LikeView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        Like.objects.create(
+            post = Posting.objects.get(id=data['post']),
+            user = User.objects.get(id=data['user'])
+        )
+
+        return JsonResponse({'message': 'SUCCESS'}, status=201)
+
+    def get(self, request):
+        posts = Posting.objects.all()
+        results = []
+        for post in posts:
+            likers = Like.objects.filter(post=post.id)
+            results.append(
+                {
+                    'post': post.id,
+                    'likes_count': Like.objects.filter(post=post.id).count(),
+                    'likers': [liker.user.id for liker in likers]
+                }
+            )
+        return JsonResponse({'results': results}, status=200)
