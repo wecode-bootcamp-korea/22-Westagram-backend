@@ -4,7 +4,7 @@ from django.http.response import JsonResponse
 from django.views import View
 
 from user.models import User
-from postings.models import Posting
+from postings.models import Posting, Comment
 
 class PostingView(View):
     def post(self, request):
@@ -32,3 +32,27 @@ class PostingView(View):
             )
 
             return JsonResponse({'results': results}, status=200)
+
+class CommentView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        Comment.objects.create(
+            post = Posting.objects.get(id=data['post']),
+            user = User.objects.get(id=data['user']),
+            text = data['text']
+        )
+
+        return JsonResponse({'message': 'SUCCESS'}, status=201)
+
+    def get(self, request):
+        comments = Comment.objects.all()
+        results = []
+        for comment in comments:
+            results.append(
+                {
+                    'post': comment.post.id,
+                    'user': comment.user.id,
+                    'text': comment.text
+                }
+            )
