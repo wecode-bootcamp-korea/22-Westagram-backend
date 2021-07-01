@@ -5,7 +5,7 @@ from django.http            import JsonResponse
 from django.db              import IntegrityError
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 
-from user.models            import User
+from user.models            import User, Follow
 from user.validators        import validate_email_regex, validate_password, validate_phone
 from project_westagram      import my_settings
 
@@ -63,3 +63,36 @@ class SignInView(View):
             return JsonResponse({'message': 'MultipleObjectsReturned'}, status=400)
         
 
+class FollowView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        # Follow
+        if not Follow.objects.filter(user_followed=data['followed'], user_following=data['following']).exists():
+            Follow.objects.create(
+                user_following = User.objects.get(id=data['following']),
+                user_followed = User.objects.get(id=data['followed'])
+            )
+        
+        # Unfollow
+        else:
+            Follow.objects.filter(user_followed=data['followed'], user_following=data['following']).delete()
+
+        return JsonResponse({'message': 'SUCCESS'}, status=201)
+
+    def get(self, request):
+        users = User.objects.all()
+        results = []
+        for user in users:
+            followers = Follow.objects.filter(user_followed=user.id)
+            followings = Follow.objects.filter(user_following=user.id)
+            results.append(
+                {
+                    'user': user.id,
+                    'follower_count': followers.count(),
+                    'followers': [follower.user_following.id for follower in followers],
+                    'following_count': followings.count(),
+                    'followings': [following.user_followed.id for following in followings]
+                }
+            )
+        return JsonResponse({'results': results}, status=200)
