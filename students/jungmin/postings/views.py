@@ -117,3 +117,28 @@ class LikeView(View):
             )
         return JsonResponse({'results': results}, status=200)
 
+class RecommentView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        Comment.objects.create(
+            post = Posting.objects.get(id=data['post']),
+            user = User.objects.get(id=data['user']),
+            parent_comment= Comment.objects.get(id=data['parent_comment']),
+            text = data['text']
+        )
+        return JsonResponse({'message': 'SUCCESS'}, status=201)
+
+    def get(self, request):
+        comments = Comment.objects.filter(parent_comment=None)
+        results = []
+        for comment in comments:
+            recomments = Comment.objects.filter(parent_comment=comment.id)
+            results.append(
+                {
+                    'id': comment.id,
+                    'user': comment.user.id,
+                    'comment': comment.text,
+                    'recomments': [{'user': recomment.user.id, 'text': recomment.text} for recomment in recomments]
+                }
+            )
+        return JsonResponse({'results': results}, status=200)

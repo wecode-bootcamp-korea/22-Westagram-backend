@@ -15,8 +15,8 @@ class Posting(models.Model):
 class Comment(models.Model):
     post = models.ForeignKey('Posting', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    parent_comment = models.ForeignKey('self', blank=True, on_delete=models.CASCADE),
-    created_at = models.DateTimeField(default=timezone.now, blank=True),
+    parent_comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now, blank=True)
     text = models.TextField()
 
     class Meta:
