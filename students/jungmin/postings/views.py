@@ -5,7 +5,6 @@ from django.http.response import JsonResponse
 from django.views import View
 from django.utils import timezone
 
-from user.models import User
 from postings.models import Posting, Comment, Like
 
 class PostingView(View):
@@ -14,9 +13,9 @@ class PostingView(View):
         data = json.loads(request.body)
 
         Posting.objects.create(
-            user = request.user,
+            user      = request.user,
             image_url = data['image_url'],
-            text = data['text']
+            text      = data['text']
         )
         return JsonResponse({'message': 'SUCCESS'}, status=201)
 
@@ -28,14 +27,13 @@ class PostingView(View):
         for posting in postings:
             results.append(
                 {
-                    'user': posting.user.id,
+                    'user'      : posting.user.id,
                     'created_at': posting.created_at,
                     'updated_at': posting.updated_at,
-                    'image_url': posting.image_url,
-                    'text': posting.text
+                    'image_url' : posting.image_url,
+                    'text'      : posting.text
                 }
             )
-
         return JsonResponse({'results': results}, status=200)
 
     @user_access
@@ -46,9 +44,11 @@ class PostingView(View):
 
     @user_access
     def put(self, request, post_id):
-        data = json.loads(request.body)
-        post = Posting.objects.filter(id=post_id)
+        data       = json.loads(request.body)
+
+        post       = Posting.objects.filter(id=post_id)
         updated_at = timezone.now()
+
         post.update(image_url=data['image_url'], text=data['text'], updated_at=updated_at)
 
         return JsonResponse({'message': 'UPDATED'}, status=200)
@@ -60,7 +60,7 @@ class CommentView(View):
 
         Comment.objects.create(
             post = Posting.objects.get(id=data['post']),
-            user = User.objects.get(id=data['user']),
+            user = request.user,
             text = data['text']
         )
 
@@ -70,15 +70,17 @@ class CommentView(View):
         comments = Comment.objects.all()
         posts = Posting.objects.all()
         results = []
+
         for post in posts:
             comments = Comment.objects.filter(post=post.id)
             results.append(
                 {
-                    'post': post.id,
-                    'user': post.user.id,
+                    'post'    : post.id,
+                    'user'    : post.user.id,
                     'comments': [{'user': comment.user.id, 'text': comment.text} for comment in comments]
                 }
             )
+
         return JsonResponse({'results': results}, status=200)
 
     @user_access
@@ -101,55 +103,61 @@ class LikeView(View):
         data = json.loads(request.body)
         
         # Like
-        if not Like.objects.filter(post=data['post'], user=data['user']).exists():
+        if not Like.objects.filter(post=data['post'], user=request.user).exists():
             Like.objects.create(
                 post = Posting.objects.get(id=data['post']),
-                user = User.objects.get(id=data['user'])
+                user = request.user
             )
         
         #UnLike
         else:
-            Like.objects.filter(post=data['post'], user=data['user']).delete()
+            Like.objects.filter(post=data['post'], user=request.user).delete()
 
         return JsonResponse({'message': 'SUCCESS'}, status=201)
 
     def get(self, request):
         posts = Posting.objects.all()
         results = []
+
         for post in posts:
             likers = Like.objects.filter(post=post.id)
             results.append(
                 {
-                    'post': post.id,
+                    'post'       : post.id,
                     'likes_count': Like.objects.filter(post=post.id).count(),
-                    'likers': [liker.user.id for liker in likers]
+                    'likers'     : [liker.user.id for liker in likers]
                 }
             )
+
         return JsonResponse({'results': results}, status=200)
 
 class RecommentView(View):
     @user_access
     def post(self, request):
         data = json.loads(request.body)
+
         Comment.objects.create(
-            post = Posting.objects.get(id=data['post']),
-            user = User.objects.get(id=data['user']),
-            parent_comment= Comment.objects.get(id=data['parent_comment']),
-            text = data['text']
+            post           = Posting.objects.get(id=data['post']),
+            user           = request.user,
+            parent_comment = Comment.objects.get(id=data['parent_comment']),
+            text           = data['text']
         )
+
         return JsonResponse({'message': 'SUCCESS'}, status=201)
 
     def get(self, request):
         comments = Comment.objects.filter(parent_comment=None)
         results = []
+
         for comment in comments:
             recomments = Comment.objects.filter(parent_comment=comment.id)
             results.append(
                 {
-                    'id': comment.id,
-                    'user': comment.user.id,
-                    'comment': comment.text,
+                    'id'        : comment.id,
+                    'user'      : comment.user.id,
+                    'comment'   : comment.text,
                     'recomments': [{'user': recomment.user.id, 'text': recomment.text} for recomment in recomments]
                 }
             )
+
         return JsonResponse({'results': results}, status=200)

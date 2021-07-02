@@ -71,7 +71,7 @@ class FollowView(View):
         if not Follow.objects.filter(user_followed=data['followed'], user_following=data['following']).exists():
             Follow.objects.create(
                 user_following = User.objects.get(id=data['following']),
-                user_followed = User.objects.get(id=data['followed'])
+                user_followed  = User.objects.get(id=data['followed'])
             )
         
         # Unfollow
@@ -83,16 +83,17 @@ class FollowView(View):
     def get(self, request):
         users = User.objects.all()
         results = []
+        
         for user in users:
-            followers = Follow.objects.filter(user_followed=user.id)
+            followers  = Follow.objects.filter(user_followed=user.id)
             followings = Follow.objects.filter(user_following=user.id)
             results.append(
                 {
-                    'user': user.id,
-                    'follower_count': followers.count(),
-                    'followers': [follower.user_following.id for follower in followers],
+                    'user'           : user.id,
+                    'follower_count' : followers.count(),
+                    'followers'      : [follower.user_following.id for follower in followers],
                     'following_count': followings.count(),
-                    'followings': [following.user_followed.id for following in followings]
+                    'followings'     : [following.user_followed.id for following in followings]
                 }
             )
         return JsonResponse({'results': results}, status=200)
