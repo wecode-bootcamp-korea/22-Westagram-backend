@@ -1,4 +1,5 @@
 import json
+from user.validators import user_access
 from django.http.response import JsonResponse
 
 from django.views import View
@@ -8,10 +9,12 @@ from user.models import User
 from postings.models import Posting, Comment, Like
 
 class PostingView(View):
+    @user_access
     def post(self, request):
         data = json.loads(request.body)
+
         Posting.objects.create(
-            user = User.objects.get(id=data['user']),
+            user = request.user,
             image_url = data['image_url'],
             text = data['text']
         )
@@ -19,8 +22,9 @@ class PostingView(View):
 
     def get(self, request):
         postings = Posting.objects.all()
-        results = []
 
+        results = []
+        
         for posting in postings:
             results.append(
                 {
@@ -34,11 +38,13 @@ class PostingView(View):
 
         return JsonResponse({'results': results}, status=200)
 
+    @user_access
     def delete(self, request, post_id):
         Posting.objects.filter(id=post_id).delete()
 
         return JsonResponse({'message': 'DELETED'}, status=200)
 
+    @user_access
     def put(self, request, post_id):
         data = json.loads(request.body)
         post = Posting.objects.filter(id=post_id)
@@ -48,6 +54,7 @@ class PostingView(View):
         return JsonResponse({'message': 'UPDATED'}, status=200)
 
 class CommentView(View):
+    @user_access
     def post(self, request):
         data = json.loads(request.body)
 
@@ -74,11 +81,13 @@ class CommentView(View):
             )
         return JsonResponse({'results': results}, status=200)
 
+    @user_access
     def delete(self, request, comment_id):
         Comment.objects.filter(id=comment_id).delete()
 
         return JsonResponse({'message': 'DELETED'}, status=200)
 
+    @user_access
     def put(self, request, comment_id):
         data = json.loads(request.body)
         post = Posting.objects.filter(id=comment_id)
@@ -87,6 +96,7 @@ class CommentView(View):
         return JsonResponse({'message': 'UPDATED'}, status=200)
         
 class LikeView(View):
+    @user_access
     def post(self, request):
         data = json.loads(request.body)
         
@@ -118,6 +128,7 @@ class LikeView(View):
         return JsonResponse({'results': results}, status=200)
 
 class RecommentView(View):
+    @user_access
     def post(self, request):
         data = json.loads(request.body)
         Comment.objects.create(
