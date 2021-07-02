@@ -1,4 +1,5 @@
 import json
+from user.validators import user_access
 from django.http.response import JsonResponse
 
 from django.views import View
@@ -7,10 +8,12 @@ from user.models import User
 from postings.models import Posting
 
 class PostingView(View):
+    @user_access
     def post(self, request):
         data = json.loads(request.body)
+
         Posting.objects.create(
-            user = User.objects.get(id=data['user']),
+            user = request.user,
             image_url = data['image_url'],
             text = data['text']
         )
@@ -19,7 +22,9 @@ class PostingView(View):
 
     def get(self, request):
         postings = Posting.objects.all()
+
         results = []
+        
         for posting in postings:
             results.append(
                 {
@@ -31,4 +36,4 @@ class PostingView(View):
                 }
             )
 
-            return JsonResponse({'results': results}, status=200)
+        return JsonResponse({'results': results}, status=200)

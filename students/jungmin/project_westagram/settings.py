@@ -137,7 +137,7 @@ CORS_ALLOW_METHODS = (
     'OPTIONS',
     'PATCH',
     'POST',
-    'PUT',
+    'PUT', 
 )
 
 CORS_ALLOW_HEADERS = (
